@@ -3,11 +3,10 @@ import Box from '@mui/joy/Box';
 import Sidebar from '@/components/main/Sidebar';
 import Header from '@/components/main/Header';
 import Breadcrumbs from '@mui/joy/Breadcrumbs';
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
-import Link from '@mui/joy/Link';
 import Typography from '@mui/joy/Typography';
 import Stack from '@mui/joy/Stack';
+import BreadCrumb from './BreadCrumb';
 
 export default function MainTemplate({ title, ...props }) {
 
@@ -38,7 +37,7 @@ export default function MainTemplate({ title, ...props }) {
                             separator={<ChevronRightRoundedIcon />}
                             sx={{ pl: 0 }}
                         >
-                            {breadcrumb}
+                            {<BreadCrumb links={breadcrumb ?? []}/>}
                             <Typography color="primary" fontWeight={500} fontSize={12}>
                                 {title}
                             </Typography>

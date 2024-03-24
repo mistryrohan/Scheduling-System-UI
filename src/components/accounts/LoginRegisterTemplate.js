@@ -85,10 +85,10 @@ export default function LoginRegisterTemplate({title, ...props}) {
                             </Typography>
                         </Stack>
 
-                        {children ??
+                        {children ?
                             <Stack gap={4}>
                                 {children}
-                            </Stack>
+                            </Stack> : <></>
                         }
 
                     </Box>

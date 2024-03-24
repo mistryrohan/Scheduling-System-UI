@@ -30,11 +30,11 @@ export default function Register() {
         </FormControl>
         <FormControl required>
           <FormLabel>Password</FormLabel>
-          <Input type="password1" name="password" />
+          <Input type="password" name="password1" />
         </FormControl>
         <FormControl required>
           <FormLabel>Confirm Password</FormLabel>
-          <Input type="password2" name="password" />
+          <Input type="password" name="password2" />
         </FormControl>
         <Stack gap={4} sx={{ mt: 4 }}>
 
