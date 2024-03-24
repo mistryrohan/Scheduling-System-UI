@@ -7,7 +7,8 @@ export default function Default() {
     // The page listing the calendar details.
     // /calendars/<calendar_id>/details
     // /calendars/<calendar_id>/timeslots/
-    //  /calendars/<calendar_id>/reminders/
+    // /calendars/<calendar_id>/reminders/
+    // /calendars/<calendar_id>/finalize/  
 
   return (
     <MainTemplate title="Default"
