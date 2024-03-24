@@ -179,8 +179,8 @@ export default function Sidebar() {
               )}
             >
               <List sx={{ gap: 0.5 }}>
-                <ListItem sx={{ mt: 0.5 }}> 
-                  <ListItemButton selected> { /* TODO: select behaviour */ }
+                <ListItem sx={{ mt: 0.5 }}>
+                  <ListItemButton selected> { /* TODO: select behaviour */}
                     <Link
                       underline="none"
                       color="black"
@@ -204,7 +204,24 @@ export default function Sidebar() {
               </List>
             </Toggler>
           </ListItem>
+
+          <ListItem>
+            <ListItemButton>
+              <HomeRoundedIcon />
+              <ListItemContent>
+                <Typography level="title-sm"><Link
+                  underline="none"
+                  color="black"
+                  href="/temp"
+                  level="title-sm">
+                  Temp Guide
+                </Link></Typography>
+              </ListItemContent>
+            </ListItemButton>
+          </ListItem>
+
         </List>
+
 
 
       </Box>
