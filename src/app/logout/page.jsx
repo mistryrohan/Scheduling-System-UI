@@ -3,5 +3,5 @@ export default async function Home() {
     
     // logout logic here
     
-    redirect('/accounts/login/');
+    redirect('/');
 }
