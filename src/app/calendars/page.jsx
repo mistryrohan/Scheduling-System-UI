@@ -38,6 +38,7 @@ export default function Calendars() {
     color="primary"
     startDecorator={<AddIcon />}
     size="lg"
+    onClick={() => router.push(`/calendars/create`)}
   >
     New Calendar
   </Button>;

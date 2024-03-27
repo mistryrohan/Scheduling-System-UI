@@ -18,7 +18,7 @@ import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { closeSidebar } from './utils';
 import AppIcon from '../AppIcon';
-import Link from '@mui/joy/Link';
+import { usePathname } from 'next/navigation'
 
 function Toggler({
   defaultExpanded = false,
@@ -46,6 +46,10 @@ function Toggler({
 }
 
 export default function Sidebar() {
+
+  const pathname = usePathname();
+  const isButtonSelected = (href) => pathname === href;
+
   return (
     <Sheet
       className="Sidebar"
@@ -121,7 +125,7 @@ export default function Sidebar() {
           }}
         >
           <ListItem>
-            <ListItemButton component="a" href="/meetings">
+            <ListItemButton component="a" href="/meetings" selected={isButtonSelected('/meetings')}>
               <HomeRoundedIcon />
               <ListItemContent>
                 <Typography level="title-sm">My Meetings</Typography>
@@ -129,45 +133,21 @@ export default function Sidebar() {
             </ListItemButton>
           </ListItem>
 
-          <ListItem nested>
-            <Toggler
-              defaultExpanded
-              renderToggle={({ open, setOpen }) => (
-                <ListItemButton onClick={() => setOpen(!open)}>
-                  <DashboardRoundedIcon />
-                  <ListItemContent>
-                    <Typography level="title-sm">Calendars</Typography>
-                  </ListItemContent>
-                  <KeyboardArrowDownIcon
-                    sx={{ transform: open ? 'rotate(180deg)' : 'none' }}
-                  />
-                </ListItemButton>
-              )}
-            >
-
-              <List sx={{ gap: 0.5 }}>
-                <ListItem sx={{ mt: 0.5 }}>
-                  <ListItemButton component="a" href="/calendars">
-                    All Calendars
-                  </ListItemButton>
-                </ListItem>
-                <ListItem sx={{ mt: 0.5 }}>
-                  <ListItemButton component="a" href="/calendars">
-                    Hosted Calendars
-                  </ListItemButton>
-                </ListItem>
-                <ListItem>
-                  <ListItemButton component="a" href="/calendars">
-                    Invited Calendars
-                  </ListItemButton>
-                  <Chip size="sm" color="primary" variant="solid">
-                    4
-                  </Chip>
-                </ListItem>
-              </List>
-            </Toggler>
+          <ListItem>
+            <ListItemButton component="a" href="/calendars" selected={isButtonSelected('/calendars')}>
+              <DashboardRoundedIcon />
+              <ListItemContent>
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <Box>Calendars</Box>
+                  <Box sx={{ display: "flex", flexDirection: "column" }}>
+                    <Chip size="sm" color="primary" variant="solid">
+                      4
+                    </Chip>
+                  </Box>
+                </Box>
+              </ListItemContent>
+            </ListItemButton>
           </ListItem>
-
 
           <ListItem nested>
             <Toggler
@@ -186,12 +166,12 @@ export default function Sidebar() {
             >
               <List sx={{ gap: 0.5 }}>
                 <ListItem sx={{ mt: 0.5 }}>
-                  <ListItemButton component="a" href="/accounts/profile">
+                  <ListItemButton component="a" href="/accounts/profile" selected={isButtonSelected('/accounts/profile')}>
                     Profile
                   </ListItemButton>
                 </ListItem>
                 <ListItem>
-                  <ListItemButton component="a" href="/accounts/contacts">
+                  <ListItemButton component="a" href="/accounts/contacts" selected={isButtonSelected('/accounts/contacts')}>
                     Contacts
                   </ListItemButton>
                 </ListItem>
