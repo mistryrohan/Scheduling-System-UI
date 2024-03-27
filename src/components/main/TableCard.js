@@ -55,7 +55,7 @@ function stableSort(array, comparator) {
 }
 
 function EnhancedTableHead(props) {
-    const { headCells, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } =
+    const { headCells, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, disableSelect } =
         props;
     const createSortHandler = (property) => (event) => {
         onRequestSort(event, property);
@@ -64,7 +64,7 @@ function EnhancedTableHead(props) {
     return (
         <thead>
             <tr>
-                <th>
+                {disableSelect ? <></> : <th>
                     <Checkbox
                         indeterminate={numSelected > 0 && numSelected < rowCount}
                         checked={rowCount > 0 && numSelected === rowCount}
@@ -76,7 +76,7 @@ function EnhancedTableHead(props) {
                         }}
                         sx={{ verticalAlign: 'sub' }}
                     />
-                </th>
+                </th>}
                 {headCells.map((headCell) => {
                     const active = orderBy === headCell.id;
                     return (
@@ -172,7 +172,7 @@ function EnhancedTableToolbar(props) {
 }
 
 export default function TableSortAndSelection({ selected, setSelected, ...props }) {
-    const { headCells, rows, title, subtitle, handleDeleteClick } = props
+    const { headCells, rows, title, subtitle, handleDeleteClick, disableSelect, topDecorator } = props
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('calories');
     const [page, setPage] = React.useState(0);
@@ -240,141 +240,146 @@ export default function TableSortAndSelection({ selected, setSelected, ...props 
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
     return (
-        <Sheet
-            variant="outlined"
-            sx={{ width: '100%', maxWidth: '100%', boxShadow: 'sm', borderRadius: 'sm' }}
-        >
-            <EnhancedTableToolbar numSelected={selected.length} title={title} subtitle={subtitle} handleDeleteClick={handleDeleteClick} />
-            <Table
-                aria-labelledby="tableTitle"
-                hoverRow
-                sx={{
-                    '--TableCell-headBackground': 'transparent',
-                    '--TableCell-selectedBackground': (theme) =>
-                        theme.vars.palette.success.softBg,
-                    '& thead th:nth-child(1)': {
-                        width: '40px',
-                    },
-                    '& thead th': {
-                        width: '100%',
-                    },
-                    '& tr > *:nth-child(n+3)': { textAlign: 'right' },
-                }}
+        <Box sx={{display: "flex", flexDirection: "column", gap: 2}}>
+            {topDecorator}
+            <Sheet
+                variant="outlined"
+                sx={{ m: '0 !important', width: '100%', maxWidth: '100%', boxShadow: 'sm', borderRadius: 'sm' }}
             >
-                <EnhancedTableHead
-                    numSelected={selected.length}
-                    order={order}
-                    orderBy={orderBy}
-                    onSelectAllClick={handleSelectAllClick}
-                    onRequestSort={handleRequestSort}
-                    rowCount={rows.length}
-                    headCells={headCells}
-                />
-                <tbody>
-                    {stableSort(rows, getComparator(order, orderBy))
-                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                        .map((row, index) => {
-                            const isItemSelected = isSelected(row.id);
-                            const labelId = `enhanced-table-checkbox-${index}`;
+                <EnhancedTableToolbar numSelected={selected.length} title={title} subtitle={subtitle} handleDeleteClick={handleDeleteClick} />
+                <Table
+                    aria-labelledby="tableTitle"
+                    hoverRow
+                    sx={{
+                        '--TableCell-headBackground': 'transparent',
+                        '--TableCell-selectedBackground': (theme) =>
+                            theme.vars.palette.success.softBg,
+                        '& thead th:nth-child(1)': disableSelect ? undefined : {
+                            width: '40px',
+                        },
+                        '& thead th': {
+                            width: '100%',
+                        },
+                        '& tr > *:nth-child(n+3)': { textAlign: 'right' },
+                    }}
+                >
+                    <EnhancedTableHead
+                        numSelected={selected.length}
+                        order={order}
+                        orderBy={orderBy}
+                        onSelectAllClick={handleSelectAllClick}
+                        onRequestSort={handleRequestSort}
+                        rowCount={rows.length}
+                        headCells={headCells}
+                        disableSelect={disableSelect}
+                    />
+                    <tbody>
+                        {stableSort(rows, getComparator(order, orderBy))
+                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                            .map((row, index) => {
+                                const isItemSelected = isSelected(row.id);
+                                const labelId = `enhanced-table-checkbox-${index}`;
 
-                            return (
-                                <tr
-                                    onClick={(event) => handleClick(event, row.id)}
-                                    role="checkbox"
-                                    aria-checked={isItemSelected}
-                                    tabIndex={-1}
-                                    key={row.id}
-                                // selected={isItemSelected}
+                                return (
+                                    <tr
+                                        onClick={(event) => disableSelect ? undefined : handleClick(event, row.id)}
+                                        role="checkbox"
+                                        aria-checked={isItemSelected}
+                                        tabIndex={-1}
+                                        key={row.id}
+                                    // selected={isItemSelected}
 
-                                >
-                                    <th scope="row">
-                                        <Checkbox
-                                            checked={isItemSelected}
-                                            slotProps={{
-                                                input: {
-                                                    'aria-labelledby': labelId,
-                                                },
-                                            }}
-                                            sx={{ verticalAlign: 'top' }}
-                                        />
-                                    </th>
-                                    <th id={labelId} scope="row">
-                                        {row.name}
-                                    </th>
-                                    {Object.entries(row).map(([key, value]) => (
-                                        key !== 'name' && key !== 'id' &&
-                                        <td key={key}>{value}</td>
-                                    ))}
-                                </tr>
-                            );
-                        })}
-                    {emptyRows > 0 && (
-                        <tr
-                            style={{
-                                height: `calc(${emptyRows} * 40px)`,
-                            }}
-                        >
-                            <td colSpan={6} aria-hidden />
-                        </tr>
-                    )}
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colSpan={6}>
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 2,
-                                    justifyContent: 'flex-end',
+                                    >
+                                        {disableSelect ? <></> : <th scope="row">
+                                            <Checkbox
+                                                checked={isItemSelected}
+                                                slotProps={{
+                                                    input: {
+                                                        'aria-labelledby': labelId,
+                                                    },
+                                                }}
+                                                sx={{ verticalAlign: 'top' }}
+                                            />
+                                        </th>}
+                                        <th id={labelId} scope="row">
+                                            {row.name}
+                                        </th>
+                                        {Object.entries(row).map(([key, value]) => (
+                                            key !== 'name' && key !== 'id' &&
+                                            <td key={key}>{value}</td>
+                                        ))}
+                                    </tr>
+                                );
+                            })}
+                        {emptyRows > 0 && (
+                            <tr
+                                style={{
+                                    height: `calc(${emptyRows} * 40px)`,
                                 }}
                             >
-                                <FormControl orientation="horizontal" size="sm">
-                                    <FormLabel>Rows per page:</FormLabel>
-                                    <Select onChange={handleChangeRowsPerPage} value={rowsPerPage}>
-                                        <Option value={5}>5</Option>
-                                        <Option value={10}>10</Option>
-                                        <Option value={25}>25</Option>
-                                    </Select>
-                                </FormControl>
-                                <Typography textAlign="center" sx={{ minWidth: 80 }}>
-                                    {labelDisplayedRows({
-                                        from: rows.length === 0 ? 0 : page * rowsPerPage + 1,
-                                        to: getLabelDisplayedRowsTo(),
-                                        count: rows.length === -1 ? -1 : rows.length,
-                                    })}
-                                </Typography>
-                                <Box sx={{ display: 'flex', gap: 1 }}>
-                                    <IconButton
-                                        size="sm"
-                                        color="neutral"
-                                        variant="outlined"
-                                        disabled={page === 0}
-                                        onClick={() => handleChangePage(page - 1)}
-                                        sx={{ bgcolor: 'background.surface' }}
-                                    >
-                                        <KeyboardArrowLeftIcon />
-                                    </IconButton>
-                                    <IconButton
-                                        size="sm"
-                                        color="neutral"
-                                        variant="outlined"
-                                        disabled={
-                                            rows.length !== -1
-                                                ? page >= Math.ceil(rows.length / rowsPerPage) - 1
-                                                : false
-                                        }
-                                        onClick={() => handleChangePage(page + 1)}
-                                        sx={{ bgcolor: 'background.surface' }}
-                                    >
-                                        <KeyboardArrowRightIcon />
-                                    </IconButton>
+                                <td colSpan={6} aria-hidden />
+                            </tr>
+                        )}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colSpan={6}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 2,
+                                        justifyContent: 'flex-end',
+                                    }}
+                                >
+                                    <FormControl orientation="horizontal" size="sm">
+                                        <FormLabel>Rows per page:</FormLabel>
+                                        <Select onChange={handleChangeRowsPerPage} value={rowsPerPage}>
+                                            <Option value={5}>5</Option>
+                                            <Option value={10}>10</Option>
+                                            <Option value={25}>25</Option>
+                                        </Select>
+                                    </FormControl>
+                                    <Typography textAlign="center" sx={{ minWidth: 80 }}>
+                                        {labelDisplayedRows({
+                                            from: rows.length === 0 ? 0 : page * rowsPerPage + 1,
+                                            to: getLabelDisplayedRowsTo(),
+                                            count: rows.length === -1 ? -1 : rows.length,
+                                        })}
+                                    </Typography>
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                        <IconButton
+                                            size="sm"
+                                            color="neutral"
+                                            variant="outlined"
+                                            disabled={page === 0}
+                                            onClick={() => handleChangePage(page - 1)}
+                                            sx={{ bgcolor: 'background.surface' }}
+                                        >
+                                            <KeyboardArrowLeftIcon />
+                                        </IconButton>
+                                        <IconButton
+                                            size="sm"
+                                            color="neutral"
+                                            variant="outlined"
+                                            disabled={
+                                                rows.length !== -1
+                                                    ? page >= Math.ceil(rows.length / rowsPerPage) - 1
+                                                    : false
+                                            }
+                                            onClick={() => handleChangePage(page + 1)}
+                                            sx={{ bgcolor: 'background.surface' }}
+                                        >
+                                            <KeyboardArrowRightIcon />
+                                        </IconButton>
+                                    </Box>
                                 </Box>
-                            </Box>
-                        </td>
-                    </tr>
-                </tfoot>
-            </Table>
-        </Sheet>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </Table>
+            </Sheet>
+        </Box>
+
     );
 }

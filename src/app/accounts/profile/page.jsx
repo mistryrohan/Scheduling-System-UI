@@ -4,9 +4,10 @@ import Input from '@mui/joy/Input';
 import Stack from '@mui/joy/Stack';
 import MainTemplate from '@/components/main/MainTemplate';
 import EmailRoundedIcon from '@mui/icons-material/EmailRounded';
-import FormCard from '@/components/main/FormCard';
 import React from 'react';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import StandardCard from '@/components/main/StandardCard';
+import { Button } from '@mui/joy';
 
 export default function Profile() {
   return (
@@ -15,9 +16,17 @@ export default function Profile() {
         { name: "My Account" }
       ]}>
 
-      <FormCard
+      <StandardCard
         title="Personal info"
         subtitle="Customize how your profile information will appear."
+        overflow={<>
+                    <Button size="sm" variant="outlined" color="neutral">
+                        Cancel
+                    </Button>
+                    <Button size="sm" variant="solid">
+                        Save
+                    </Button>
+                    </>}
       >
         <form>
           <Stack spacing={1} sx={{ mb: 2 }}>
@@ -79,7 +88,7 @@ export default function Profile() {
             </FormControl>
           </Stack>
         </form>
-      </FormCard>
+      </StandardCard>
     </MainTemplate>
   );
 }

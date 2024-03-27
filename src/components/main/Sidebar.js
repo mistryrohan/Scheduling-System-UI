@@ -56,7 +56,7 @@ export default function Sidebar() {
           md: 'none',
         },
         transition: 'transform 0.4s, width 0.4s',
-        zIndex: 10000,
+        zIndex: 1100,
         height: '100dvh',
         width: 'var(--Sidebar-width)',
         top: 0,
@@ -197,21 +197,6 @@ export default function Sidebar() {
                 </ListItem>
               </List>
             </Toggler>
-          </ListItem>
-
-          <ListItem>
-            <ListItemButton>
-              <HomeRoundedIcon />
-              <ListItemContent>
-                <Typography level="title-sm"><Link
-                  underline="none"
-                  color="black"
-                  href="/temp"
-                  level="title-sm">
-                  Temp Guide
-                </Link></Typography>
-              </ListItemContent>
-            </ListItemButton>
           </ListItem>
 
         </List>

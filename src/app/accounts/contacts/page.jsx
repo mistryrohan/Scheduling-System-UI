@@ -1,9 +1,8 @@
 "use client"
 import MainTemplate from '@/components/main/MainTemplate';
-import { Box, Button, FormControl, FormLabel, Input, Sheet, Stack, Table } from '@mui/joy';
+import { Button, FormControl, FormLabel, Input, Stack } from '@mui/joy';
 import EmailRoundedIcon from '@mui/icons-material/EmailRounded';
 import React from 'react';
-import FormCard from '@/components/main/FormCard';
 import StandardCard from '@/components/main/StandardCard';
 import TableSortAndSelection from '@/components/main/TableCard';
 
@@ -61,7 +60,12 @@ export default function Contacts() {
 
   const [selected, setSelected] = React.useState([]);
 
-  const tableProps = {headCells, rows, selected, setSelected}
+  const handleDeleteClick = () => {
+    // wip
+    alert(`delete ${selected}`);
+  };
+
+  const tableProps = {headCells, rows, selected, setSelected, handleDeleteClick}
 
 
   return (
@@ -71,9 +75,17 @@ export default function Contacts() {
       ]}
     >
 
-      <FormCard
+      <StandardCard
         title="Add Contact"
         subtitle="Add a new contact."
+        overflow={<>
+                    <Button size="sm" variant="outlined" color="neutral">
+                        Cancel
+                    </Button>
+                    <Button size="sm" variant="solid">
+                        Add
+                    </Button>
+                    </>}
       >
         <form>
           <Stack spacing={1} sx={{ mb: 1 }}>
@@ -98,7 +110,7 @@ export default function Contacts() {
             </FormControl>
           </Stack>
         </form>
-      </FormCard>
+      </StandardCard>
 
       <TableSortAndSelection title="Contacts" subtitle="View contacts here." {...tableProps} />
 

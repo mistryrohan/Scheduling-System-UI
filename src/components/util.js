@@ -11,6 +11,7 @@ function trimEndpoint(endpoint) {
 export function fetchData(endpoint) {
 
     // TODO: the fetch should send the user_id.
+    // If the response is auth failure, need to redirect to /
 
     const [data, setData] = useState([]);
     const [isFetching, setIsFetching] = useState(false);
