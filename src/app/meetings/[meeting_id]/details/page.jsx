@@ -3,7 +3,9 @@ import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import Link from '@mui/joy/Link';
 import React from 'react';
 
-export default function MeetingDetail() {
+export default function MeetingDetails(props) {
+  const { params } = props
+
   return (
     <MainTemplate title="Meeting Details"
       breadcrumb={[
@@ -11,7 +13,7 @@ export default function MeetingDetail() {
       ]}
       >
 
-      
+      {params.meeting_id}
 
     </MainTemplate>
   );

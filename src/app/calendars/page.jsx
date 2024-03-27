@@ -24,6 +24,7 @@ import { ArrowDropDown, DeleteForever, Edit } from '@mui/icons-material';
 import StatusChip from '@/components/calendars/StatusChip';
 import { Search } from '@mui/icons-material';
 import AlertDialogModal from '@/components/calendars/DeleteModal';
+import { useRouter } from 'next/navigation';
 
 export default function Calendars() {
 
@@ -60,11 +61,14 @@ export default function Calendars() {
     },
   ];
 
-  const handleViewDetails = () => {
+  const router = useRouter()
 
+  const handleViewDetails = (id) => {
+    router.push(`/calendars/${id}/details`)
   }
 
   const handleDelete = () => {
+    // TODO: Implement deletion
     alert(`delete calendar ${deleteCalendar}`)
     setDeleteCalendar(-1);
   }
@@ -79,7 +83,7 @@ export default function Calendars() {
           <Dropdown>
             <MenuButton endDecorator={<ArrowDropDown />}>More</MenuButton>
             <Menu size="sm" placement="bottom-end">
-              <MenuItem onClick={handleViewDetails}>
+              <MenuItem onClick={() => {handleViewDetails(attr.id)}}>
                 <ListItemDecorator >
                   <Edit />
                 </ListItemDecorator>
