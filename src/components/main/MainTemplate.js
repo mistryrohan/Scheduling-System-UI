@@ -7,13 +7,43 @@ import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import Typography from '@mui/joy/Typography';
 import Stack from '@mui/joy/Stack';
 import BreadCrumb from './BreadCrumb';
+import { Button, Snackbar } from '@mui/joy';
+
+
+function popup(message) {
+
+    const [open, setOpen] = React.useState(true);
+
+    return (<Snackbar
+        autoHideDuration={3000}
+        variant="solid"
+        open={open}
+        size={"md"}
+        onClose={(event, reason) => { setOpen(false) }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        endDecorator={
+            <Button
+                onClick={() => setOpen(false)}
+                size="sm"
+                variant="solid"
+                color="success"
+            >
+                Dismiss
+            </Button>
+        }
+    >
+        {message}
+    </Snackbar>);
+}
 
 export default function MainTemplate({ title, ...props }) {
 
-    const { breadcrumb, children } = props
+
+    const { breadcrumb, children, message, titleDecorator } = props
 
     return (
         <>
+            {message ? popup(message) : <></>}
             <Box sx={{ display: 'flex', minHeight: '100dvh' }}>
                 <Sidebar />
                 <Header />
@@ -37,14 +67,26 @@ export default function MainTemplate({ title, ...props }) {
                             separator={<ChevronRightRoundedIcon />}
                             sx={{ pl: 0 }}
                         >
-                            {<BreadCrumb links={breadcrumb ?? []}/>}
+                            {<BreadCrumb links={breadcrumb ?? []} />}
                             <Typography color="primary" fontWeight={500} fontSize={12}>
                                 {title}
                             </Typography>
                         </Breadcrumbs>
-                        <Typography level="h2" component="h1" sx={{ mt: 1 }}>
-                            {title}
-                        </Typography>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                mb: 1,
+                                gap: 1,
+                                flexDirection: { xs: 'column', sm: 'row' },
+                                alignItems: { xs: 'start', sm: 'center' },
+                                justifyContent: 'space-between',
+                            }}
+                        >
+                            <Typography level="h2" component="h1">
+                                {title}
+                            </Typography>
+                            {titleDecorator ?? <></>}
+                        </Box>
                     </Box>
 
 
@@ -64,13 +106,12 @@ export default function MainTemplate({ title, ...props }) {
                             sx={{
                                 display: 'flex',
                                 mx: 'auto',
+                                height: "100%",
                                 px: { xs: 2, md: 6 },
-                                py: { xs: 2, md: 3 },
+                                py: { xs: 2 },
                             }}
                         >
-
                             {children}
-
                         </Stack>
                     </Box>
 

@@ -129,14 +129,13 @@ function EnhancedTableHead(props) {
 }
 
 function EnhancedTableToolbar(props) {
-    const { numSelected, title, subtitle } = props;
+    const { numSelected, title, subtitle, handleDeleteClick } = props;
 
     return (
         <Box
             sx={{
                 display: 'flex',
                 alignItems: 'center',
-                py: 1,
                 pl: { sm: 2 },
                 pr: { xs: 1, sm: 1 },
                 ...(numSelected > 0 && {
@@ -147,34 +146,35 @@ function EnhancedTableToolbar(props) {
             }}
         >
             {numSelected > 0 ? (
-                <Typography sx={{ flex: '1 1 100%' }} component="div">
+                <Typography sx={{ py: 2, flex: '1 1 100%' }} component="div">
                     {numSelected} selected
                 </Typography>
             ) : (
-                <Box sx={{ my: 1 }}>
+                title || subtitle ? <Box sx={{ py: 1, my: 1 }}>
                     <Typography level="title-md">{title}</Typography>
                     <Typography level="body-sm">
                         {subtitle}
                     </Typography>
-                </Box>
+                </Box> : <></>
             )}
 
             {numSelected > 0 ? (
-                <Tooltip title="Delete">
-                    <IconButton size="sm" color="danger" variant="solid">
-                        <DeleteIcon />
-                    </IconButton>
-                </Tooltip>
+                <>
+                    <Tooltip title="Delete">
+                        <IconButton size="sm" color="danger" variant="solid" onClick={handleDeleteClick}>
+                            <DeleteIcon />
+                        </IconButton>
+                    </Tooltip>
+                </>
             ) : <></>}
         </Box>
     );
 }
 
-export default function TableSortAndSelection(props) {
-    const { headCells, rows, title, subtitle } = props
+export default function TableSortAndSelection({ selected, setSelected, ...props }) {
+    const { headCells, rows, title, subtitle, handleDeleteClick } = props
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('calories');
-    const [selected, setSelected] = React.useState([]);
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
@@ -186,12 +186,14 @@ export default function TableSortAndSelection(props) {
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
-            const newSelected = rows.map((n) => n.name);
+            const newSelected = rows.map((n) => n.id);
             setSelected(newSelected);
             return;
         }
         setSelected([]);
     };
+
+    console.log(selected)
 
     const handleClick = (event, name) => {
         const selectedIndex = selected.indexOf(name);
@@ -242,7 +244,7 @@ export default function TableSortAndSelection(props) {
             variant="outlined"
             sx={{ width: '100%', maxWidth: '100%', boxShadow: 'sm', borderRadius: 'sm' }}
         >
-            <EnhancedTableToolbar numSelected={selected.length} title={title} subtitle={subtitle} />
+            <EnhancedTableToolbar numSelected={selected.length} title={title} subtitle={subtitle} handleDeleteClick={handleDeleteClick} />
             <Table
                 aria-labelledby="tableTitle"
                 hoverRow
@@ -252,6 +254,9 @@ export default function TableSortAndSelection(props) {
                         theme.vars.palette.success.softBg,
                     '& thead th:nth-child(1)': {
                         width: '40px',
+                    },
+                    '& thead th': {
+                        width: '100%',
                     },
                     '& tr > *:nth-child(n+3)': { textAlign: 'right' },
                 }}
@@ -269,16 +274,16 @@ export default function TableSortAndSelection(props) {
                     {stableSort(rows, getComparator(order, orderBy))
                         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                         .map((row, index) => {
-                            const isItemSelected = isSelected(row.name);
+                            const isItemSelected = isSelected(row.id);
                             const labelId = `enhanced-table-checkbox-${index}`;
 
                             return (
                                 <tr
-                                    onClick={(event) => handleClick(event, row.name)}
+                                    onClick={(event) => handleClick(event, row.id)}
                                     role="checkbox"
                                     aria-checked={isItemSelected}
                                     tabIndex={-1}
-                                    key={row.name}
+                                    key={row.id}
                                 // selected={isItemSelected}
 
                                 >
@@ -297,7 +302,7 @@ export default function TableSortAndSelection(props) {
                                         {row.name}
                                     </th>
                                     {Object.entries(row).map(([key, value]) => (
-                                        key !== 'name' &&
+                                        key !== 'name' && key !== 'id' &&
                                         <td key={key}>{value}</td>
                                     ))}
                                 </tr>

@@ -50,9 +50,6 @@ export default function Temp() {
             <Typography level="h2">Input, Form Validation</Typography>
             https://mui.com/joy-ui/react-input/
 
-
-
-
             <Typography level="h2">Calendar</Typography>
             https://schedule-x.dev/docs/calendar
 

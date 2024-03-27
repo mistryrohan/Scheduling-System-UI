@@ -121,7 +121,7 @@ export default function Sidebar() {
           }}
         >
           <ListItem>
-            <ListItemButton>
+            <ListItemButton component="a" href="/meetings">
               <HomeRoundedIcon />
               <ListItemContent>
                 <Typography level="title-sm">My Meetings</Typography>
@@ -147,13 +147,19 @@ export default function Sidebar() {
 
               <List sx={{ gap: 0.5 }}>
                 <ListItem sx={{ mt: 0.5 }}>
-                  <ListItemButton>All Calendars</ListItemButton>
+                  <ListItemButton component="a" href="/calendars">
+                    All Calendars
+                  </ListItemButton>
                 </ListItem>
                 <ListItem sx={{ mt: 0.5 }}>
-                  <ListItemButton>Hosted</ListItemButton>
+                  <ListItemButton component="a" href="/calendars">
+                    Hosted Calendars
+                  </ListItemButton>
                 </ListItem>
                 <ListItem>
-                  <ListItemButton>Invited</ListItemButton>
+                  <ListItemButton component="a" href="/calendars">
+                    Invited Calendars
+                  </ListItemButton>
                   <Chip size="sm" color="primary" variant="solid">
                     4
                   </Chip>
@@ -180,25 +186,13 @@ export default function Sidebar() {
             >
               <List sx={{ gap: 0.5 }}>
                 <ListItem sx={{ mt: 0.5 }}>
-                  <ListItemButton selected> { /* TODO: select behaviour */}
-                    <Link
-                      underline="none"
-                      color="black"
-                      href="/accounts/profile"
-                      level="title-sm">
-                      Profile
-                    </Link>
+                  <ListItemButton component="a" href="/accounts/profile">
+                    Profile
                   </ListItemButton>
                 </ListItem>
                 <ListItem>
-                  <ListItemButton>
-                    <Link
-                      underline="none"
-                      color="black"
-                      href="/accounts/contacts"
-                      level="title-sm">
-                      Contacts
-                    </Link>
+                  <ListItemButton component="a" href="/accounts/contacts">
+                    Contacts
                   </ListItemButton>
                 </ListItem>
               </List>

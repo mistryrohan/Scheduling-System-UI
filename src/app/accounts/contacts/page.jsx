@@ -1,3 +1,4 @@
+"use client"
 import MainTemplate from '@/components/main/MainTemplate';
 import { Box, Button, FormControl, FormLabel, Input, Sheet, Stack, Table } from '@mui/joy';
 import EmailRoundedIcon from '@mui/icons-material/EmailRounded';
@@ -58,7 +59,10 @@ export default function Contacts() {
       { name: 'Oreo', calories: 437, fat: 18.0, carbs: 63, protein: 4.0 }
     ]
 
-  const tableProps = {headCells, rows}
+  const [selected, setSelected] = React.useState([]);
+
+  const tableProps = {headCells, rows, selected, setSelected}
+
 
   return (
     <MainTemplate title="Contacts"

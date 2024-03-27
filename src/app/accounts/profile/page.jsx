@@ -20,7 +20,7 @@ export default function Profile() {
         subtitle="Customize how your profile information will appear."
       >
         <form>
-          <Stack spacing={1} sx={{ mb: 1 }}>
+          <Stack spacing={1} sx={{ mb: 2 }}>
             <FormLabel>Username</FormLabel>
             <FormControl
               sx={{ display: { sm: 'flex-column', md: 'flex-row' }, gap: 2 }}
@@ -30,7 +30,7 @@ export default function Profile() {
             </FormControl>
           </Stack>
 
-          <Stack spacing={1} sx={{ mb: 1 }}>
+          <Stack spacing={1} sx={{ mb: 2 }}>
             <FormLabel>Name</FormLabel>
             <FormControl
               sx={{ display: { sm: 'flex-column', md: 'flex-row' }, gap: 2 }}
@@ -41,7 +41,7 @@ export default function Profile() {
             </FormControl>
           </Stack>
 
-          <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
+          <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
             <FormControl sx={{ flexGrow: 1 }}>
               <FormLabel>Email</FormLabel>
               <Input

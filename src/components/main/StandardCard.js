@@ -12,14 +12,18 @@ export default function StandardCard(props) {
     return (
 
         <Card>
-            <Box sx={{ mb: 1 }}>
-                <Typography level="title-md">{title}</Typography>
-                <Typography level="body-sm">
-                    {subtitle}
-                </Typography>
-            </Box>
-            <Divider />
-            <Stack
+            {title || subtitle ? <>
+                <Box sx={{ mb: children ? 1: 0 }}>
+                    <Typography level="title-md">{title}</Typography>
+                    <Typography level="body-sm">
+                        {subtitle}
+                    </Typography>
+                </Box>
+            </> : <></>}
+
+            { (title || subtitle) && children ? <Divider /> : <></> }
+
+            {children ? <Stack
                 direction="row"
                 spacing={3}
                 sx={{ my: 1 }}
@@ -29,7 +33,7 @@ export default function StandardCard(props) {
                     {children}
 
                 </Stack>
-            </Stack>
+            </Stack> : <></>}
         </Card>
 
     );

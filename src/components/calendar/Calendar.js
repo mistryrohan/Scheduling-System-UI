@@ -4,7 +4,9 @@ import React from 'react';
 import { useCalendarApp, ScheduleXCalendar } from '@schedule-x/react'
 import {
     viewWeek,
-    viewDay
+    viewDay,
+    viewMonthGrid,
+    viewMonthAgenda
 } from '@schedule-x/calendar'
 
 import '@schedule-x/theme-default/dist/index.css'
@@ -14,20 +16,21 @@ import { createDragAndDropPlugin } from '@schedule-x/drag-and-drop'
 import { createEventModalPlugin } from '@schedule-x/event-modal'
 import { createResizePlugin } from '@schedule-x/resize'
 
-export default function Calendar(props) {
 
-    const { events } = props;
+export function getMeetingCalendar() {
 
     const calendar = useCalendarApp({
-        defaultView: viewWeek.name,
-        views: [viewDay, viewWeek],
-        events: events,
+        defaultView: viewMonthGrid.name,
+        views: [viewDay, viewWeek, viewMonthGrid, viewMonthAgenda],
         plugins: [createDragAndDropPlugin(), createEventModalPlugin(), createResizePlugin()]
     })
 
-    return (
-        <div>
-            <ScheduleXCalendar calendarApp={calendar} />
-        </div>
-    );
+    const updateCalendar = (e) => { calendar.events.set(e); }
+
+    return { calendar, updateCalendar };
+}
+
+export default function Calendar(props) {
+    const { calendar } = props;
+    return <ScheduleXCalendar calendarApp={calendar} />;
 }
