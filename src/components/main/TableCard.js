@@ -171,8 +171,12 @@ function EnhancedTableToolbar(props) {
     );
 }
 
-export default function TableSortAndSelection({ selected, setSelected, ...props }) {
+export default function TableSortAndSelection(props) {
     const { headCells, rows, title, subtitle, handleDeleteClick, disableSelect, topDecorator } = props
+    
+    const selected = props.selected ?? [];
+    const setSelected = props.setSelected ?? function() {};
+
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('calories');
     const [page, setPage] = React.useState(0);

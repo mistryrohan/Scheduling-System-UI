@@ -37,7 +37,6 @@ export default function Calendars() {
   const allCalendars = [...ownedCalendars, ...invitedCalendars];
 
   const [searchInput, setSearchInput] = React.useState('');
-  const [selected, setSelected] = React.useState([]);
   const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
   const [deleteCalendar, setDeleteCalendar] = React.useState(-1);
   const [filterType, setFilterType] = React.useState('all');
@@ -87,8 +86,6 @@ export default function Calendars() {
     else if(filterType == 'invited') return u != user;
     else return true;
   }
-
-  console.log(allCalendars)
 
   const rows = allCalendars
     .filter(({ primary_user }) => handleFilterType(primary_user))
@@ -146,29 +143,9 @@ export default function Calendars() {
         <Option value="invited" onClick={() => setFilterType("invited")}>Invited</Option>
       </Select>
     </FormControl>
-    <FormControl size="sm">
-      <FormLabel>Status</FormLabel>
-      <Select
-        size="sm"
-        placeholder="Filter by status"
-        slotProps={{ button: { sx: { whiteSpace: 'nowrap' } } }}
-      >
-        <Option value="all">All</Option>
-        <Option value="complete">Completed</Option>
-        <Option value="pending">Pending</Option> 
-        <Option value="finalize">Finalize</Option>
-
-        {/* <Option value="pending">Finalize</Option> // Host finalize
-        <Option value="awaiting">Awaiting Host</Option> // Invitee finalize
-        <Option value="awaiting">Awaiting Response</Option> // Host response
-        <Option value="awaiting">Response Required</Option> // Invitee response
-        <Option value="awaiting">Completed</Option> // else branch */}
-
-      </Select>
-    </FormControl>
   </Box>
 
-  const tableProps = { headCells, rows, selected, setSelected, topDecorator }
+  const tableProps = { headCells, rows, topDecorator }
 
   return (
     <>
