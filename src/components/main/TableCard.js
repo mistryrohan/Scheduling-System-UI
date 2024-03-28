@@ -193,8 +193,6 @@ export default function TableSortAndSelection({ selected, setSelected, ...props 
         setSelected([]);
     };
 
-    console.log(selected)
-
     const handleClick = (event, name) => {
         const selectedIndex = selected.indexOf(name);
         let newSelected = [];

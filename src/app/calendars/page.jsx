@@ -28,11 +28,19 @@ import { useRouter } from 'next/navigation';
 
 export default function Calendars() {
 
+  const user = 1;
+
   const { data, isFetching, message } = fetchData('calendars');
+
+  const ownedCalendars = data['owned_calendars'] || [];
+  const invitedCalendars = data['invitee_calendars'] || [];
+  const allCalendars = [...ownedCalendars, ...invitedCalendars];
+
   const [searchInput, setSearchInput] = React.useState('');
   const [selected, setSelected] = React.useState([]);
   const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
   const [deleteCalendar, setDeleteCalendar] = React.useState(-1);
+  const [filterType, setFilterType] = React.useState('all');
 
   const NewCalendarButton = <Button
     color="primary"
@@ -74,13 +82,22 @@ export default function Calendars() {
     setDeleteCalendar(-1);
   }
 
-  const rows = data
+  const handleFilterType = (u) => {
+    if(filterType == 'hosted') return u == user;
+    else if(filterType == 'invited') return u != user;
+    else return true;
+  }
+
+  console.log(allCalendars)
+
+  const rows = allCalendars
+    .filter(({ primary_user }) => handleFilterType(primary_user))
     .filter(({ name }) => name.toLowerCase().includes(searchInput.toLowerCase()))
-    .map(({ primary_user, duration, description, ...attr }) => ({
+    .map(({ primary_user, duration, description, has_meeting, respondants, all_responded, ...attr }) => ({
       ...attr,
       button: (
         <Box sx={{ display: "flex", justifyContent: "end", gap: 2 }}>
-          <StatusChip />
+          <StatusChip owner={primary_user} user={user} hasMeeting={has_meeting} allResponded={all_responded} respondants={respondants}/>
           <Dropdown>
             <MenuButton endDecorator={<ArrowDropDown />}>More</MenuButton>
             <Menu size="sm" placement="bottom-end">
@@ -124,9 +141,9 @@ export default function Calendars() {
         placeholder="Filter by type"
         slotProps={{ button: { sx: { whiteSpace: 'nowrap' } } }}
       >
-        <Option value="all">All</Option>
-        <Option value="hosted">Hosted</Option>
-        <Option value="invited">Invited</Option>
+        <Option value="all" onClick={() => setFilterType("all")}>All</Option>
+        <Option value="hosted" onClick={() => setFilterType("hosted")}>Hosted</Option>
+        <Option value="invited" onClick={() => setFilterType("invited")}>Invited</Option>
       </Select>
     </FormControl>
     <FormControl size="sm">
@@ -137,9 +154,16 @@ export default function Calendars() {
         slotProps={{ button: { sx: { whiteSpace: 'nowrap' } } }}
       >
         <Option value="all">All</Option>
-        <Option value="awaiting">Awaiting</Option>
-        <Option value="pending">Completed</Option>
-        <Option value="awaiting">Response Required</Option>
+        <Option value="complete">Completed</Option>
+        <Option value="pending">Pending</Option> 
+        <Option value="finalize">Finalize</Option>
+
+        {/* <Option value="pending">Finalize</Option> // Host finalize
+        <Option value="awaiting">Awaiting Host</Option> // Invitee finalize
+        <Option value="awaiting">Awaiting Response</Option> // Host response
+        <Option value="awaiting">Response Required</Option> // Invitee response
+        <Option value="awaiting">Completed</Option> // else branch */}
+
       </Select>
     </FormControl>
   </Box>

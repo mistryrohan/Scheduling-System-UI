@@ -28,10 +28,8 @@ function mapToCalendar(meetings) {
 export default function Meetings() {
 
   const { data, isFetching, message } = fetchData('meetings');
-  // @ts-ignore
-  const invitedMeetings = data?.invited_meetings || [];
-  // @ts-ignore
-  const hostedMeetings = data?.hosted_meetings || [];
+  const invitedMeetings = data['invited_meetings'] || [];
+  const hostedMeetings = data['hosted_meetings'] || [];
 
   const invitedEvents = mapToCalendar(invitedMeetings);
   const hostedEvents = mapToCalendar(hostedMeetings);
