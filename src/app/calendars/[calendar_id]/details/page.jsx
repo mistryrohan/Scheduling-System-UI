@@ -5,11 +5,9 @@ import MainTemplate from '@/components/main/MainTemplate';
 import { Button, Box, Typography, Card, CardContent } from '@mui/joy';
 import { Grid } from '@mui/material';
 import EventIcon from '@mui/icons-material/Event';
-import DescriptionIcon from '@mui/icons-material/Description';
 import PersonIcon from '@mui/icons-material/Person';
 import MessageIcon from '@mui/icons-material/Message';
-import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
-import MailOutlineIcon from '@mui/icons-material/MailOutline';
+import { useRouter } from 'next/navigation';
 
 
 // Decide grid layout based on number of timeslots
@@ -55,45 +53,70 @@ function InfoBlock({ label, content, icon, timeslots }) {
 }
 
 
-function GuestItem({ guest, onRemove }) {
-  return (
+function GuestItem({ guest, onRemove, calendarId }) {
 
+  const sendReminder = async () => {
+    try {
+      const response = await fetch(`/calendars/${calendarId}/reminders/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_ids: [guest.user] }) 
+      });
+
+      if (response.ok) {
+        alert("Reminder Sent Successfully");
+      } else {
+        alert("Failed to send the reminder. Please try again.");
+      }
+    } catch (error) {
+      console.error("Failed to send reminder: ", error);
+      alert("An error occurred. Please try again.");
+    }
+  };
+  
+  return (
     <Card variant="outlined" sx={{
       mb: 2, p: 2, borderColor: 'rgba(0, 0, 0, 0.12)',
       display: 'flex', justifyContent: 'space-between', alignItems: 'left', width: '100%',
     }}>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        {/* User ID */}
+
+        {/* TODO Change to user's name */}
         <Typography variant="subtitle2" sx={{ fontSize: '0.875rem', flexGrow: 0 }}>
           {`User ID: ${guest.user}`}
         </Typography>
-        {/* Placeholder Email */}
+
+        {/* TODO Change to user email */}
         <Typography variant="body2" sx={{ fontSize: '0.75rem', flexGrow: 0 }}>
           placeholder@email.com
         </Typography>
+
         {/* Status */}
         <Typography variant="subtitle2" sx={{ flexGrow: 0 }}>
           {guest.status}
         </Typography>
 
+        {/* Buttons for reminders and removal */}
         {guest.status !== 'scheduled' && (
-          <Button size="small" variant="outlined" sx={{ mr: 1 }}>
-            Send Reminder
-          </Button>
+           <Button size="small" variant="outlined" sx={{ mr: 1 }} onClick={sendReminder}>
+           Send Reminder
+         </Button>
         )}
-        <Button size="small" variant="outlined" color="error" onClick={() => onRemove(guest.id)}>
+
+        <Button size="small" variant="outlined" onClick={() => onRemove(guest.id)}>
           Remove
         </Button>
-      </Box>
-      
+      </Box>     
     </Card>
   );
 }
 
 
-function GuestList({ guests, setGuests }) {
-  // Handler to remove a guest from the list
+function GuestList({ guests, setGuests, calendarId }) {
+  // Remove a guest from the list
   const handleRemoveGuest = (guestId) => {
     const updatedGuests = guests.filter(guest => guest.id !== guestId);
     setGuests(updatedGuests);
@@ -103,7 +126,7 @@ function GuestList({ guests, setGuests }) {
     <Box sx={{ mt: 2 }}>
       <Typography level="h6" sx={{ mb: 2 }}>Guests</Typography>
       {guests.map((guest, index) => (
-        <GuestItem key={index} guest={guest} onRemove={handleRemoveGuest} />
+        <GuestItem key={index} guest={guest} onRemove={handleRemoveGuest} calendarId={calendarId} />
       ))}
     </Box>
   );
@@ -112,6 +135,9 @@ function GuestList({ guests, setGuests }) {
 
 export default function CalendarDetails(props) {
   const { params } = props;
+  const router = useRouter();
+  const calendarId = params.calendar_id;
+
   
   let { data: calendarData, isFetching: isFetchingCalendar } = fetchData(`calendars/${params.calendar_id}/details`); 
   let { data: timeslotsData, isFetching: isFetchingTimeslots } = fetchData(`calendars/${params.calendar_id}/timeslots`);
@@ -125,12 +151,54 @@ export default function CalendarDetails(props) {
     }
   }, [invitationsData]);
 
-  console.log("Hello");
-  console.log(calendarData);
-  console.log(timeslotsData);
-  console.log(invitationsData);
+  // TODO REMOVE THIS WAS TO TEST
+  invitationsData = {
+    "count_responded": 4,
+    "responded_invitees_details": [
+      {
+        "id": 1,
+        "user": 2,
+        "responded": true,
+        "status": "scheduled",
+        "calendar": 1
+      },
+      {
+        "id": 2,
+        "user": 1,
+        "responded": true,
+        "status": "pending",
+        "calendar": 1
+      },
+      {
+        "id": 3,
+        "user": 4,
+        "responded": true,
+        "status": "declined",
+        "calendar": 1
+      },
+      {
+        "id": 4,
+        "user": 5,
+        "responded": false,
+        "status": "no_response",
+        "calendar": 1
+      }
+    ],
+    "message": "4 contacts have responded to the invitation for this calendar"
+  }
 
-  
+
+  const allScheduled = guests.every(guest => guest.status === 'scheduled');
+
+  const handleFinalizeClick = () => {
+    if (allScheduled) {
+      router.push(`/calendars/${calendarId}/finalize/`);
+    } else {
+      alert("All guests must be 'scheduled' to proceed with finalization.");
+    }
+  };
+
+
   // Check if any data is still fetching, and prevent access to not yet available data
   if (isFetchingCalendar || isFetchingTimeslots || isFetchingInvitations) {
     return <div>Loading...</div>;
@@ -181,8 +249,26 @@ export default function CalendarDetails(props) {
         />
       </Grid>
 
-      <GuestList guests={guests} setGuests={setGuests} />
-      {/* <GuestList guests={invitationsData.responded_invitees_details || []} setGuests={setGuests}} /> */}
+      <GuestList guests={guests} setGuests={setGuests} calendarId={params.calendar_id}/>
+
+      <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+        <Button
+          variant="solid"
+          size="lg"
+          onClick={handleFinalizeClick}
+          disabled={!allScheduled}
+          sx={{
+            width: 250, // Making the button big
+            height: 50,
+            fontSize: '1rem',
+            display: 'block', // Ensure it's centered
+            mx: 'auto', // Margin auto for horizontal centering
+            my: 2, // Margin top and bottom for some spacing
+          }}
+        >
+          Finalize
+        </Button>
+      </Box>
 
     </MainTemplate>
   );
