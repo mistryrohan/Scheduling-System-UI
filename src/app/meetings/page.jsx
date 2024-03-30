@@ -2,7 +2,7 @@
 import MainTemplate from '@/components/main/MainTemplate';
 import { fetchData } from '@/components/util';
 import { Box, Select, Option, CircularProgress } from '@mui/joy';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { DateTime } from 'luxon';
 import Calendar, { getMeetingCalendar } from '@/components/calendar/Calendar';
@@ -17,7 +17,7 @@ function mapToCalendar(meetings) {
       id: meeting.id,
       title: meeting.calendar.name,
       description: meeting.calendar.description,
-      start: startTime.toFormat('yyyy-MM-dd HH:mm'), // calendar wants this format or it doesnt show on weekly/daily
+      start: startTime.toFormat('yyyy-MM-dd HH:mm'), // calendar wants this format lol
       end: endTime.toFormat('yyyy-MM-dd HH:mm'),
       calendarId: (meeting.calendar.id).toString(),
     }
@@ -35,13 +35,12 @@ export default function Meetings() {
   const hostedEvents = mapToCalendar(hostedMeetings);
   const allEvents = [...invitedEvents, ...hostedEvents];
 
-  const { calendar, updateCalendar } = getMeetingCalendar();
-  updateCalendar(allEvents);
+  const [ events, setEvents ] = React.useState(allEvents);
 
   const handleChange = (_, value) => {
-    if (value == "invited") updateCalendar(invitedEvents);
-    else if (value == "hosted") updateCalendar(hostedEvents);
-    else updateCalendar(allEvents);
+    if (value == "invited") setEvents(invitedEvents);
+    else if (value == "hosted") setEvents(hostedEvents);
+    else setEvents(allEvents);
   };
 
   const NewMeetingButton = <Select variant="solid" defaultValue="all" onChange={handleChange}>
@@ -53,7 +52,7 @@ export default function Meetings() {
   return (
     <MainTemplate title="My Meetings" message={message} titleDecorator={NewMeetingButton}>
 
-      {!isFetching ? <Calendar calendar={calendar} /> :
+      {!isFetching ? <Calendar events={events} /> :
         <Box sx={{ width: '100%', height: '100%', display: "flex", alignItems: "center", justifyContent: "center" }}>
           <CircularProgress />
         </Box>}
