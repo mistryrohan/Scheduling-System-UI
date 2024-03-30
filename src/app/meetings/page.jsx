@@ -5,7 +5,7 @@ import { Box, Select, Option, CircularProgress } from '@mui/joy';
 import React, { useState } from 'react';
 
 import { DateTime } from 'luxon';
-import Calendar, { getMeetingCalendar } from '@/components/calendar/Calendar';
+import Calendar from '@/components/calendar/Calendar';
 
 function mapToCalendar(meetings) {
   return meetings?.map(meeting => {
@@ -35,7 +35,7 @@ export default function Meetings() {
   const hostedEvents = mapToCalendar(hostedMeetings);
   const allEvents = [...invitedEvents, ...hostedEvents];
 
-  const [ events, setEvents ] = React.useState(allEvents);
+  const [ events, setEvents ] = useState(allEvents);
 
   const handleChange = (_, value) => {
     if (value == "invited") setEvents(invitedEvents);

@@ -6,23 +6,6 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import { Card } from '@mui/joy';
 
-
-export function getMeetingCalendar() {
-
-    // const calendar = useCalendarApp({
-    //     defaultView: viewMonthGrid.name,
-    //     views: [viewDay, viewWeek, viewMonthGrid, viewMonthAgenda],
-    //     plugins: [createDragAndDropPlugin(), createEventModalPlugin(), createResizePlugin()]
-    // })
-
-    // const updateCalendar = (e) => { calendar.events.set(e); }
-
-    // return { calendar, updateCalendar };
-
-    return { calendar: undefined, updateCalendar: () => { } }
-
-}
-
 export default function Calendar(props) {
     const { events } = props;
     return (
