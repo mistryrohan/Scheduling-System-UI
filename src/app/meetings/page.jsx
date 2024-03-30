@@ -2,7 +2,7 @@
 import MainTemplate from '@/components/main/MainTemplate';
 import { fetchData } from '@/components/util';
 import { Box, Select, Option, CircularProgress } from '@mui/joy';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { DateTime } from 'luxon';
 import Calendar from '@/components/calendar/Calendar';
@@ -35,7 +35,11 @@ export default function Meetings() {
   const hostedEvents = mapToCalendar(hostedMeetings);
   const allEvents = [...invitedEvents, ...hostedEvents];
 
-  const [ events, setEvents ] = useState(allEvents);
+  const [ events, setEvents ] = useState([]);
+
+  useEffect(() => {
+    setEvents(allEvents);
+  }, [allEvents]);
 
   const handleChange = (_, value) => {
     if (value == "invited") setEvents(invitedEvents);
