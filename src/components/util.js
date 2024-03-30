@@ -17,7 +17,13 @@ export function fetchData(endpoint, method = 'GET', body = null) {
     const [isFetching, setIsFetching] = useState(false);
     const [message, setMessage] = useState(null);
 
-    const options = { method }
+    const accessToken = typeof window === 'object' ? localStorage.getItem('access_token') : null;
+    const headers = {
+        'Content-Type': 'application/json',
+        ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
+    };
+
+    const options = { method, headers }
     if (body) options.body = JSON.stringify(body);
 
     async function fetchData() {
@@ -38,4 +44,37 @@ export function fetchData(endpoint, method = 'GET', body = null) {
     useEffect(() => { fetchData() }, []);
 
     return { data, isFetching, message };
+}
+
+/** 
+ * @param {string} username username
+ * @param {string} password user password
+ * @returns {Promise<{success: boolean, message: string}>}
+*/
+export async function handleLogin(username, password) {
+    const url = 'http://www.localhost:8000/accounts/login/';
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+    };
+    try {
+        const response = await fetch(url, requestOptions);
+        const data = await response.json();
+        // if (!response.ok) throw new Error(data['detail']);
+        if (!response.ok) throw new Error(data.message || 'Login failed');
+        /*Storing the user, and access and refresh tokens to localStorage*/
+        localStorage.setItem('user', JSON.stringify(data.user));
+        console.log(JSON.stringify(data.user))
+        localStorage.setItem('access_token', data.access);
+        console.log(data.access)
+        localStorage.setItem('refresh_token', data.refresh);
+        console.log(data.refresh)
+        // return { success: true, message: data['message'] };
+        return { success: true, message: 'Login successful' };
+    }
+    catch (error) {
+        console.error('Login error:', error);
+        return { success: false, message: error.message };
+    }
 }
