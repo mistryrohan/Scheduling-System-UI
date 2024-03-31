@@ -18,13 +18,13 @@ export default function CalendarDrawer(props) {
 
     const formatDateTime = (dateTime) => {
         return dateTime?.toLocaleString('en-US', {
-            month: 'short',
+            month: 'long',
             day: 'numeric',
             year: 'numeric',
             hour: 'numeric',
             minute: 'numeric',
             hour12: true,
-            timeZoneName: 'short'
+            timeZone: 'UTC'
         });
     };
 
