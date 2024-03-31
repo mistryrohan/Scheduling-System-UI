@@ -303,10 +303,10 @@ export default function TableSortAndSelection(props) {
                                                 sx={{ verticalAlign: 'top' }}
                                             />
                                         </th>}
-                                        <th id={labelId} scope="row">
+                                        {row.name ? <th id={labelId} scope="row">
                                             {row.name}
-                                        </th>
-                                        {Object.entries(row).map(([key, value]) => (
+                                        </th> : <></>}
+                                        {Object.entries(row).map(([key, value]) =>  (
                                             key !== 'name' && key !== 'id' &&
                                             <td key={key}>{value}</td>
                                         ))}
