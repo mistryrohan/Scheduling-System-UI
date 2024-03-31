@@ -35,11 +35,16 @@ export default function Meetings() {
   const hostedEvents = mapToCalendar(hostedMeetings);
   const allEvents = [...invitedEvents, ...hostedEvents];
 
-  const [ events, setEvents ] = useState([]);
+  const [events, setEvents] = useState(allEvents);
+  const [fetched, setFetched] = useState(false);
 
   useEffect(() => {
-    setEvents(allEvents);
+    if (allEvents.length > 0 && !fetched) {
+      setEvents(allEvents);
+      setFetched(true); 
+    }
   }, [allEvents]);
+
 
   const handleChange = (_, value) => {
     if (value == "invited") setEvents(invitedEvents);
