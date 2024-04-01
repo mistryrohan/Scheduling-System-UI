@@ -65,6 +65,7 @@
     background-color: #ff0000 !important;
     border-radius: 50% !important;
     color: white !important;
+    text-align: center !important;
 }
 
 @media only screen and (max-width: 600px) {
