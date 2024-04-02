@@ -1,6 +1,6 @@
 "use client"
 import MainTemplate from '@/components/main/MainTemplate';
-import { fetchData } from '@/components/util';
+import { fetchData, getOptions } from '@/components/util';
 import {
     Box,
     CircularProgress,
@@ -26,13 +26,22 @@ import ConflictChip from '@/components/calendars/finalize/ConflictChip';
 import StandardCard from '@/components/main/StandardCard';
 import { DateTime } from 'luxon';
 import { useRouter } from 'next/navigation';
+import Popup from '@/components/main/Popup';
 
 export default function Calendars(props) {
 
     const { params } = props;
     const router = useRouter();
 
-    const { data, isFetching, message } = fetchData(`calendars/${params.calendar_id}/finalize/`);
+    const { data, isFetching, message, responseCode } = fetchData(`calendars/${params.calendar_id}/finalize/`);
+
+    console.log(responseCode);
+
+    useEffect(() => {
+        if (responseCode === 403) {
+            router.push('/calendars');
+        }
+    }, [responseCode]);
 
     const calendar = data['calendar'] || {};
     const finalizeData = data['meetings'] || [];
@@ -47,7 +56,6 @@ export default function Calendars(props) {
     const handleSearchInputChange = (event) => {
         setSearchInput(event.target.value);
     };
-
 
     // Modifying selected Timeslot, initializing rows
 
@@ -162,6 +170,30 @@ export default function Calendars(props) {
         else return true;
     }
 
+    // Submission
+    
+    const [submitMessage, setSubmitMessage] = React.useState(undefined);
+    const [open, setOpen] = React.useState(true);
+
+    const handleSubmission = () => {
+        const data = rowData.map(({id, start_time, _duration, _calendar_id}) => ({
+            user: id,
+            start_time: start_time,
+            duration: _duration,
+            calendar_id: _calendar_id
+        }));
+        const payload = {meetings: data};
+        
+        fetch('http://www.localhost:8000/calendars/1/finalize/', getOptions('POST', payload))
+        .then(response => response.json())
+        .then((_) => {
+            router.push('/calendars');
+        })
+        .catch(error => {
+            setSubmitMessage(error);
+        });
+    };
+
     // Table Props
 
     const headCells = [
@@ -220,6 +252,7 @@ export default function Calendars(props) {
 
     return (
         <>
+            {submitMessage ? <Popup message={message} open={open} setOpen={setOpen} /> : <></>}
             <ModifyTimeslot handleModifySelected={handleModifySelected} data={rowData} editUser={editUser} open={openDeleteModal} setOpen={setOpenDeleteModal} />
             <MainTemplate title="Finalize Calendar" message={message}>
                 {!isFetching ?
@@ -240,6 +273,7 @@ export default function Calendars(props) {
                                 color="primary"
                                 size="md"
                                 disabled={disabled}
+                                onClick={handleSubmission}
                             >
                                 Create Meetings
                             </Button>

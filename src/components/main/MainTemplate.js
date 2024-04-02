@@ -1,3 +1,4 @@
+"use client"
 import * as React from 'react';
 import Box from '@mui/joy/Box';
 import Sidebar from '@/components/main/Sidebar';
@@ -7,43 +8,19 @@ import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import Typography from '@mui/joy/Typography';
 import Stack from '@mui/joy/Stack';
 import BreadCrumb from './BreadCrumb';
-import { Button, Snackbar } from '@mui/joy';
+import Popup from './Popup';
 
 
-function popup(message) {
-
-    const [open, setOpen] = React.useState(true);
-
-    return (<Snackbar
-        autoHideDuration={3000}
-        variant="solid"
-        open={open}
-        size={"md"}
-        onClose={(event, reason) => { setOpen(false) }}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        endDecorator={
-            <Button
-                onClick={() => setOpen(false)}
-                size="sm"
-                variant="solid"
-                color="success"
-            >
-                Dismiss
-            </Button>
-        }
-    >
-        {message}
-    </Snackbar>);
-}
 
 export default function MainTemplate({ title, ...props }) {
 
 
     const { breadcrumb, children, message, titleDecorator } = props
+    const [open, setOpen] = React.useState(true);
 
     return (
         <>
-            {message ? popup(message) : <></>}
+            {message ? <Popup message={message} open={open} setOpen={setOpen} /> : <></>}
             <Box sx={{ display: 'flex', minHeight: '100dvh' }}>
                 <Sidebar />
                 <Header />
