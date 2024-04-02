@@ -57,7 +57,7 @@ export default function MainTemplate({ title, ...props }) {
                         flexDirection: 'column',
                         minWidth: 0,
                         height: '100dvh',
-                        overflow: 'auto',
+                        overflow: 'auto'
                     }}
                 >
                     <Box sx={{ px: { xs: 2, md: 6 } }}>
@@ -109,6 +109,7 @@ export default function MainTemplate({ title, ...props }) {
                                 height: "100%",
                                 px: { xs: 2, md: 6 },
                                 py: { xs: 2 },
+                                gap: 2
                             }}
                         >
                             {children}
