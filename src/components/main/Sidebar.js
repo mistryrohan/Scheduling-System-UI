@@ -18,7 +18,7 @@ import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { closeSidebar } from './utils';
 import AppIcon from '../AppIcon';
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 function Toggler({
   defaultExpanded = false,
@@ -49,6 +49,8 @@ export default function Sidebar() {
 
   const pathname = usePathname();
   const isButtonSelected = (href) => pathname === href;
+
+  const router = useRouter();
 
   return (
     <Sheet
@@ -125,7 +127,7 @@ export default function Sidebar() {
           }}
         >
           <ListItem>
-            <ListItemButton component="a" href="/meetings" selected={isButtonSelected('/meetings')}>
+            <ListItemButton onClick={() => {router.push('/meetings')}} selected={isButtonSelected('/meetings')}>
               <HomeRoundedIcon />
               <ListItemContent>
                 <Typography level="title-sm">My Meetings</Typography>
@@ -134,7 +136,7 @@ export default function Sidebar() {
           </ListItem>
 
           <ListItem>
-            <ListItemButton component="a" href="/calendars" selected={isButtonSelected('/calendars')}>
+            <ListItemButton onClick={() => {router.push('/calendars')}} selected={isButtonSelected('/calendars')}>
               <DashboardRoundedIcon />
               <ListItemContent>
                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -166,12 +168,12 @@ export default function Sidebar() {
             >
               <List sx={{ gap: 0.5 }}>
                 <ListItem sx={{ mt: 0.5 }}>
-                  <ListItemButton component="a" href="/accounts/profile" selected={isButtonSelected('/accounts/profile')}>
+                  <ListItemButton onClick={() => {router.push("/accounts/profile")}} selected={isButtonSelected('/accounts/profile')}>
                     Profile
                   </ListItemButton>
                 </ListItem>
                 <ListItem>
-                  <ListItemButton component="a" href="/accounts/contacts" selected={isButtonSelected('/accounts/contacts')}>
+                  <ListItemButton onClick={() => {router.push("/accounts/contacts")}} selected={isButtonSelected('/accounts/contacts')}>
                     Contacts
                   </ListItemButton>
                 </ListItem>
