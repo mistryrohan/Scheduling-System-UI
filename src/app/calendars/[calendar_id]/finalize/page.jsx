@@ -14,24 +14,23 @@ import {
     Menu,
     MenuButton,
     MenuItem,
-    Card,
     Button,
     Divider,
-    Typography,
 } from '@mui/joy';
-import React from 'react';
+import React, { useEffect } from 'react';
 import TableSortAndSelection from '@/components/main/TableCard';
 import { ArrowDropDown, Edit } from '@mui/icons-material';
 import { Search } from '@mui/icons-material';
 import ModifyTimeslot from '@/components/calendars/finalize/ModifyTimeslotModal';
 import ConflictChip from '@/components/calendars/finalize/ConflictChip';
 import StandardCard from '@/components/main/StandardCard';
+import { DateTime } from 'luxon';
+import { useRouter } from 'next/navigation';
 
 export default function Calendars(props) {
 
-    const user = 1;
-
     const { params } = props;
+    const router = useRouter();
 
     const { data, isFetching, message } = fetchData(`calendars/${params.calendar_id}/finalize/`);
 
@@ -41,11 +40,129 @@ export default function Calendars(props) {
     const [searchInput, setSearchInput] = React.useState('');
     const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
     const [filterType, setFilterType] = React.useState('all');
-
+    const [editUser, setEditUser] = React.useState(-1);
+    const [rowData, setRowData] = React.useState([]);
+    const [fetched, setFetched] = React.useState(false);
 
     const handleSearchInputChange = (event) => {
         setSearchInput(event.target.value);
     };
+
+
+    // Modifying selected Timeslot, initializing rows
+
+    const getButton = (id, hasConflict) => {
+        return <Box sx={{ display: "flex", justifyContent: "end", gap: 2 }}>
+            <ConflictChip has_conflict={hasConflict} />
+            <Dropdown>
+                <MenuButton endDecorator={<ArrowDropDown />}>More</MenuButton>
+                <Menu size="sm" placement="bottom-end">
+                    <MenuItem onClick={() => { handleViewDetails(id) }}>
+                        <ListItemDecorator >
+                            <Edit />
+                        </ListItemDecorator>
+                        Modify Time
+                    </MenuItem>
+                </Menu>
+            </Dropdown>
+        </Box>
+
+    }
+
+    const checkConflict = (user, startTime, endTime, otherUser, otherSelected, otherTimeslots) => {
+        if (user.id !== otherUser.id) {
+            const otherSelectedTimeslot = otherTimeslots[otherSelected]
+            const otherStartTime = DateTime.fromISO(otherSelectedTimeslot.time);
+            const otherEndTime = otherStartTime.plus({ minutes: otherSelectedTimeslot.duration });
+            if (!(endTime <= otherStartTime || startTime >= otherEndTime) || (endTime == otherEndTime && startTime == otherStartTime)) return true;
+        }
+        return false;
+    }
+
+    const findConflict = (user, selected, timeslots, data) => {
+        let hasConflict = false;
+
+        const selectedTimeslot = timeslots[selected];
+        const startTime = DateTime.fromISO(selectedTimeslot.time);
+        const endTime = startTime.plus({ minutes: selectedTimeslot.duration });
+
+        if (data.length < 1) finalizeData.forEach(({ user: otherUser, selected: otherSelected, timeslots: otherTimeslots }) => {
+            if (checkConflict(user, startTime, endTime, otherUser, otherSelected, otherTimeslots)) hasConflict = true;
+
+        });
+        else data.forEach(({ _user: otherUser, _selected: otherSelected, _timeslots: otherTimeslots }) => {
+            if (checkConflict(user, startTime, endTime, otherUser, otherSelected, otherTimeslots)) hasConflict = true;
+        });
+
+        return hasConflict;
+    }
+
+    useEffect(() => {
+        if (finalizeData?.length > 0 && !fetched) {
+            const initData = finalizeData.map(({ user, selected, timeslots }) => {
+                const hasConflict = findConflict(user, selected, timeslots, []);
+                const button = getButton(user.id, hasConflict);
+                return {
+                    id: user.id,
+                    name: `${user.first_name} ${user.last_name}`,
+                    start_time: timeslots[selected].time,
+                    _calendar_id: calendar.id,
+                    _user: user,
+                    _duration: timeslots[selected].duration,
+                    _has_conflict: hasConflict,
+                    _timeslots: timeslots,
+                    _selected: selected,
+                    button: button,
+                }
+            });
+            setRowData(initData);
+            setFetched(true);
+        }
+    }, [finalizeData]);
+
+    const handleModifySelected = (u, newSelected) => {
+
+        // Update selection
+        const updatedRowData = rowData.map(row => {
+            if (row.id === u) {
+                const { _timeslots } = row;
+
+                return {
+                    ...row,
+                    start_time: _timeslots[newSelected].time,
+                    _selected: newSelected
+                };
+            }
+            return row;
+        });
+
+        // Update all conflict buttons
+        const finalUpdatedRowData = updatedRowData.map(row => {
+            const { _user, _selected, _timeslots } = row;
+            const hasConflict = findConflict(_user, _selected, _timeslots, updatedRowData);
+            const button = getButton(_user.id, hasConflict);
+
+            return {
+                ...row,
+                _has_conflict: hasConflict,
+                button: button
+            };
+        });
+
+        setRowData(finalUpdatedRowData);
+    };
+
+    const handleViewDetails = (u) => {
+        setEditUser(u);
+        setOpenDeleteModal(true);
+    }
+
+    const handleFilterType = (has_conflict) => {
+        if (filterType == 'conflict') return has_conflict;
+        else return true;
+    }
+
+    // Table Props
 
     const headCells = [
         {
@@ -68,47 +185,8 @@ export default function Calendars(props) {
         },
     ];
 
-    const handleViewDetails = () => {
-        setOpenDeleteModal(true);
-    }
-
-    const handleFilterType = (has_conflict) => {
-        if (filterType == 'conflict') return has_conflict;
-        else return true;
-    }
-
-    const rowData = finalizeData.map(({ user, selected, timeslots }) => {
-
-        const has_conflict = user.id == 2;
-
-        return {
-            id: user.id,
-            _calendar_id: calendar.id,
-            name: `${user.first_name} ${user.last_name}`,
-            start_time: timeslots[selected].time,
-            _duration: timeslots[selected].duration,
-            _has_conflict: has_conflict,
-            button: (
-                <Box sx={{ display: "flex", justifyContent: "end", gap: 2 }}>
-                    <ConflictChip has_conflict={has_conflict} />
-                    <Dropdown>
-                        <MenuButton endDecorator={<ArrowDropDown />}>More</MenuButton>
-                        <Menu size="sm" placement="bottom-end">
-                            <MenuItem onClick={() => { handleViewDetails() }}>
-                                <ListItemDecorator >
-                                    <Edit />
-                                </ListItemDecorator>
-                                Modify Time
-                            </MenuItem>
-                        </Menu>
-                    </Dropdown>
-                </Box>
-            ),
-        }
-    });
-
     const rows = rowData.filter(({ name }) => name.toLowerCase().includes(searchInput.toLowerCase()))
-        .filter(({ _has_conflict }) => handleFilterType(_has_conflict));
+                        .filter(({ _has_conflict }) => handleFilterType(_has_conflict));
 
     const topDecorator = <Box
         className="SearchAndFilters-tabletUp"
@@ -138,25 +216,30 @@ export default function Calendars(props) {
 
     const tableProps = { headCells, rows, topDecorator }
 
+    const disabled = rowData.some(row => row._has_conflict)
+
     return (
         <>
-            <ModifyTimeslot open={openDeleteModal} setOpen={setOpenDeleteModal} />
+            <ModifyTimeslot handleModifySelected={handleModifySelected} data={rowData} editUser={editUser} open={openDeleteModal} setOpen={setOpenDeleteModal} />
             <MainTemplate title="Finalize Calendar" message={message}>
                 {!isFetching ?
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                        <StandardCard title={calendar?.name} subtitle={calendar?.description} />
+                        <StandardCard title={calendar?.name} subtitle={calendar?.description ? `${calendar?.description} (${calendar?.duration} min)` : ''} />
                         <TableSortAndSelection {...tableProps} disableSelect />
                         <Divider />
                         <Box sx={{ display: "flex", gap: 2, justifyContent: "end" }}>
                             <Button
                                 variant="outlined"
                                 size="md"
+                                onClick={() => { router.push('/calendars'); }}
                             >
                                 Cancel
                             </Button>
+
                             <Button
                                 color="primary"
                                 size="md"
+                                disabled={disabled}
                             >
                                 Create Meetings
                             </Button>
