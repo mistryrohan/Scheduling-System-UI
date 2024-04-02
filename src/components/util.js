@@ -50,7 +50,7 @@ export function fetchData(endpoint, method = 'GET', body = null) {
             const response = await fetch(`http://www.localhost:8000/${trimEndpoint(endpoint)}/`, options);
             setResponseCode(response.status);
             const data = await response.json();
-            if (!response.ok) throw new Error(data['message']);
+            if (!response.ok) throw new Error(data['message'] ?? data['detail']);
             setData(data);
             setMessage(data["message"]);
         } catch (error) {
