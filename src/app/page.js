@@ -3,14 +3,33 @@ import * as React from 'react';
 import HalfTemplate from '@/components/accounts/HalfTemplate';
 import { Box, Button, Checkbox, FormControl, FormLabel, Input, Link, Stack } from '@mui/joy';
 import LoginRegisterTemplate from '@/components/accounts/LoginRegisterTemplate';
+import { handleLogin } from '@/components/util';
+import { useRouter } from 'next/navigation';
 
 export default function LandingPage() {
-
+    const router = useRouter();
     const [showLogin, setShowLogin] = React.useState(false);
     const [showRegister, setShowRegister] = React.useState(false);
 
+    const handleLoginSubmit = async (event) => {
+        event.preventDefault();
+        const username = event.target.username.value;
+        const password = event.target.password.value;
 
-    // logic here
+        const { success, message } = await handleLogin(username, password);
+        if (success) {
+            console.log('Login successful');
+            router.push('/calendars');
+        } else {
+            console.log('Login failed');
+        }
+    };
+
+    const handleRegisterSubmit = async (event) => {
+        event.preventDefault();
+        // Collect form data
+        // Implement registration functionality
+    };
 
     return (
         <HalfTemplate>
@@ -39,10 +58,10 @@ export default function LandingPage() {
                             </Link>
                         </>}
                 >
-                    <form>
+                    <form onSubmit={handleLoginSubmit}>
                         <FormControl required>
-                            <FormLabel>Email</FormLabel>
-                            <Input type="email" name="email" />
+                            <FormLabel>Username</FormLabel>
+                            <Input type="text" name="username" />
                         </FormControl>
                         <FormControl required>
                             <FormLabel>Password</FormLabel>
@@ -79,7 +98,15 @@ export default function LandingPage() {
                     <form>
                         <FormControl required>
                             <FormLabel>Username</FormLabel>
-                            <Input type="email" name="email" />
+                            <Input type="text" name="username" />
+                        </FormControl>
+                        <FormControl required>
+                            <FormLabel>First Name</FormLabel>
+                            <Input type="text" name="firstName" /> {/* Added field */}
+                        </FormControl>
+                        <FormControl required>
+                            <FormLabel>Last Name</FormLabel>
+                            <Input type="text" name="lastName" /> {/* Added field */}
                         </FormControl>
                         <FormControl required>
                             <FormLabel>Email</FormLabel>
