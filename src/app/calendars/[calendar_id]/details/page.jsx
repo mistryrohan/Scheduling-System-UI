@@ -136,58 +136,6 @@ export default function CalendarDetails(props) {
     }
   }, [invitationsData]);
 
-  // TODO REMOVE THIS WAS TO TEST
-  // Mocked invitationsData with user details included
-invitationsData = {
-  "count_responded": 4,
-  "responded_invitees_details": [
-    {
-      "id": 1,
-      "user": {
-        "id": 2,
-        "username": "user_two",
-        "email": "user_two@example.com"
-      },
-      "responded": true,
-      "status": "scheduled",
-      "calendar": 1
-    },
-    {
-      "id": 2,
-      "user": {
-        "id": 1,
-        "username": "user_one",
-        "email": "user_one@example.com"
-      },
-      "responded": true,
-      "status": "pending",
-      "calendar": 1
-    },
-    {
-      "id": 3,
-      "user": {
-        "id": 4,
-        "username": "user_four",
-        "email": "user_four@example.com"
-      },
-      "responded": true,
-      "status": "pending",
-      "calendar": 1
-    },
-    {
-      "id": 4,
-      "user": {
-        "id": 5,
-        "username": "user_five",
-        "email": "user_five@example.com"
-      },
-      "responded": false,
-      "status": "pending",
-      "calendar": 1
-    }
-  ],
-  "message": "4 contacts have responded to the invitation for this calendar"
-};
 
   const handleFinalizeClick = () => {
     router.push(`/calendars/${calendarId}/finalize/`);
