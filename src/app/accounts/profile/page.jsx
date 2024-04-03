@@ -20,12 +20,14 @@ export default function Profile() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault(); 
 
     if (password && password !== confirmPassword) {
       setError('Passwords do not match.');
+      setSuccessMessage('');
       return;
     }
 
@@ -52,14 +54,12 @@ export default function Profile() {
       if (!response.ok) throw new Error('Failed to update profile');
 
       setError(''); 
+      setSuccessMessage('Updated Successfully');
     } catch (err) {
       setError(err.message);
+      setSuccessMessage('');
     }
   };
-
-  let { data: userData, isFetching: isFetchingInvitations } = fetchData(`accounts/profile`);
-  console.log(userData);
-  console.log(userData.username);
 
   return (
     <MainTemplate title="My Profile"
@@ -160,6 +160,7 @@ export default function Profile() {
         </Button>
       </Stack>
 
+      {successMessage && <div style={{ color: 'green', marginTop: '10px' }}>{successMessage}</div>}
       {error && <div style={{ color: 'red', marginTop: '10px' }}>{error}</div>}
     </form>
 

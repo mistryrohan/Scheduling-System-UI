@@ -53,7 +53,7 @@ function InfoBlock({ label, content, icon, timeslots }) {
 }
 
 
-function GuestItem({ guest, onRemove, calendarId }) {
+function GuestItem({ guest, calendarId }) {
 
   const sendReminder = async () => {
     try {
@@ -79,54 +79,39 @@ function GuestItem({ guest, onRemove, calendarId }) {
   return (
     <Card variant="outlined" sx={{
       mb: 2, p: 2, borderColor: 'rgba(0, 0, 0, 0.12)',
-      display: 'flex', justifyContent: 'space-between', alignItems: 'left', width: '100%',
+      display: 'flex', justifyContent: 'space-between', alignItems: 'left', width: 'auto',
     }}>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
 
-        {/* TODO Change to user's name */}
-        <Typography variant="subtitle2" sx={{ fontSize: '0.875rem', flexGrow: 0 }}>
-          {`User ID: ${guest.user}`}
+        <Typography variant="subtitle2" sx={{ fontSize: '1rem' }}>
+          {guest.user.username}
         </Typography>
 
-        {/* TODO Change to user email */}
-        <Typography variant="body2" sx={{ fontSize: '0.75rem', flexGrow: 0 }}>
-          placeholder@email.com
+        <Typography variant="body2" sx={{ fontSize: '1rem' }}>
+          {guest.user.email}
         </Typography>
 
-        {/* Status */}
         <Typography variant="subtitle2" sx={{ flexGrow: 0 }}>
           {guest.status}
         </Typography>
 
-        {/* Buttons for reminders and removal */}
         {guest.status !== 'scheduled' && (
-           <Button size="small" variant="outlined" sx={{ mr: 1 }} onClick={sendReminder}>
+           <Button size="medium" variant="outlined" sx={{ mr: 1 }} onClick={sendReminder}>
            Send Reminder
          </Button>
         )}
-
-        <Button size="small" variant="outlined" onClick={() => onRemove(guest.id)}>
-          Remove
-        </Button>
       </Box>     
     </Card>
   );
 }
 
-
 function GuestList({ guests, setGuests, calendarId }) {
-  // Remove a guest from the list
-  const handleRemoveGuest = (guestId) => {
-    const updatedGuests = guests.filter(guest => guest.id !== guestId);
-    setGuests(updatedGuests);
-  };
-
   return (
     <Box sx={{ mt: 2 }}>
-      <Typography level="h6" sx={{ mb: 2 }}>Guests</Typography>
+      <Typography level="h2" sx={{ mb: 2 }}>Guests</Typography>
       {guests.map((guest, index) => (
-        <GuestItem key={index} guest={guest} onRemove={handleRemoveGuest} calendarId={calendarId} />
+        <GuestItem key={index} guest={guest} calendarId={calendarId} />
       ))}
     </Box>
   );
@@ -152,50 +137,60 @@ export default function CalendarDetails(props) {
   }, [invitationsData]);
 
   // TODO REMOVE THIS WAS TO TEST
-  invitationsData = {
-    "count_responded": 4,
-    "responded_invitees_details": [
-      {
-        "id": 1,
-        "user": 2,
-        "responded": true,
-        "status": "scheduled",
-        "calendar": 1
-      },
-      {
+  // Mocked invitationsData with user details included
+invitationsData = {
+  "count_responded": 4,
+  "responded_invitees_details": [
+    {
+      "id": 1,
+      "user": {
         "id": 2,
-        "user": 1,
-        "responded": true,
-        "status": "pending",
-        "calendar": 1
+        "username": "user_two",
+        "email": "user_two@example.com"
       },
-      {
-        "id": 3,
-        "user": 4,
-        "responded": true,
-        "status": "declined",
-        "calendar": 1
+      "responded": true,
+      "status": "scheduled",
+      "calendar": 1
+    },
+    {
+      "id": 2,
+      "user": {
+        "id": 1,
+        "username": "user_one",
+        "email": "user_one@example.com"
       },
-      {
+      "responded": true,
+      "status": "pending",
+      "calendar": 1
+    },
+    {
+      "id": 3,
+      "user": {
         "id": 4,
-        "user": 5,
-        "responded": false,
-        "status": "no_response",
-        "calendar": 1
-      }
-    ],
-    "message": "4 contacts have responded to the invitation for this calendar"
-  }
-
-
-  const allScheduled = guests.every(guest => guest.status === 'scheduled');
+        "username": "user_four",
+        "email": "user_four@example.com"
+      },
+      "responded": true,
+      "status": "pending",
+      "calendar": 1
+    },
+    {
+      "id": 4,
+      "user": {
+        "id": 5,
+        "username": "user_five",
+        "email": "user_five@example.com"
+      },
+      "responded": false,
+      "status": "pending",
+      "calendar": 1
+    }
+  ],
+  "message": "4 contacts have responded to the invitation for this calendar"
+};
 
   const handleFinalizeClick = () => {
-    if (allScheduled) {
-      router.push(`/calendars/${calendarId}/finalize/`);
-    } else {
-      alert("All guests must be 'scheduled' to proceed with finalization.");
-    }
+    router.push(`/calendars/${calendarId}/finalize/`);
   };
 
 
@@ -256,14 +251,13 @@ export default function CalendarDetails(props) {
           variant="solid"
           size="lg"
           onClick={handleFinalizeClick}
-          disabled={!allScheduled}
           sx={{
-            width: 250, // Making the button big
+            width: 250,
             height: 50,
             fontSize: '1rem',
-            display: 'block', // Ensure it's centered
-            mx: 'auto', // Margin auto for horizontal centering
-            my: 2, // Margin top and bottom for some spacing
+            display: 'block', 
+            mx: 'auto', 
+            my: 2, 
           }}
         >
           Finalize
