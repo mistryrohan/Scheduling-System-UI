@@ -57,7 +57,7 @@ function GuestItem({ guest, onRemove, calendarId }) {
 
   const sendReminder = async () => {
     try {
-      const response = await fetch(`/calendars/${calendarId}/reminders/`, {
+      const response = await fetch(`http://www.localhost:8000/calendars/${calendarId}/reminders/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -40,7 +40,7 @@ export default function Profile() {
     };
 
     try {
-      const response = await fetch('/accounts/profile', {
+      const response = await fetch('http://www.localhost:8000/accounts/profile/', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
