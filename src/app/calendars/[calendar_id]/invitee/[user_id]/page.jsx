@@ -19,6 +19,18 @@ import Typography from '@mui/joy/Typography';
 
 let eventId = 0;
 
+const priToColour = {
+  "2":  '#C63D2F', // highest pri
+  "1": '#FC6736', 
+  "0": '#FFBB5C' // lowest pri
+}
+
+const colourToPri = {
+  "#C63D2F": 2, // highest pri
+  "#FC6736": 1, 
+  "#FFBB5C": 0 // lowest pri
+}
+
 function createEventId() {
   return String(eventId++);
 }
@@ -27,25 +39,29 @@ function mapToCalendar(timeslots, userId) {
 
   var userTimeslots = [];
   timeslots.forEach(timeslot => {
-    if (timeslot['user'] === userId){
-      var backgroundColour;
-      if (timeslot.priority = 2) {
-        backgroundColour = '#C63D2F'
-      } else if (timeslot.priority = 1) {
-        backgroundColour = '#FC6736'
-      } else {
-        backgroundColour = '#FFBB5C'
-      }
-
+    if (timeslot['user'] === userId){ 
       userTimeslots.push({
         id: createEventId(),
         start: timeslot.start_time.substring(0, timeslot.start_time.length - 1),
         end: timeslot.end_time.substring(0, timeslot.end_time.length - 1),
-        backgroundColor: backgroundColour
+        backgroundColor: priToColour[timeslot.priority]
       });  
     }
   });
   return userTimeslots;
+}
+
+function mapEventsToTimeslots(events) {
+  var timeslots = [];
+  events.forEach(event => {
+    timeslots.push({
+      start_time: event.start.substring(0, 19), // TODO: check
+      end_time: event.end.substring(0, 19),
+      priority: colourToPri[event.backgroundColor]
+    });
+  
+  });
+  return timeslots;
 }
 
 export default function Default(props) {
@@ -60,46 +76,47 @@ export default function Default(props) {
 
   const [ events, setEvents ] = useState([]);
   const [priority, setPriority] = React.useState('low');
+  const [colour, setColour ] = useState('#FFBB5C');
 
-  var colour = '#FFBB5C';
-  var priorityAsInt = 0
+
+  useEffect(() => {
+    setEvents(userTimeslots);
+  }, [data])
+
   useEffect(() => {
     if (priority === 'high') {
-      colour = '#C63D2F'
-      priorityAsInt = 2;
+      setColour('#C63D2F');
     } else if (priority === 'medium') {
-      colour = '#FC6736'
-      priorityAsInt = 1;
+      setColour('#FC6736');
     } else {
-      colour = '#FFBB5C'
-      priorityAsInt = 0;
+      setColour('#FFBB5C');
     }
   }, [priority])
 
 
   useEffect(() => {
-    console.log(events)
+    console.log("events", events)
   }, [events])
 
-  const handleSelect = (selectInfo) => {
-    let calendarApi = selectInfo.view.calendar
+ 
 
-    calendarApi.unselect() // clear date selection
+  const handleSelect = (selectInfo) => {
+
     var newEvent = {
       id: createEventId(),
       start: selectInfo.startStr,
       end: selectInfo.endStr,
       allDay: selectInfo.allDay,
-      backgroundColor: colour
+      backgroundColor: colour,
     };
-    calendarApi.addEvent(newEvent);
 
-    // var newEvents = [];
-    // newEvents.push(events);
-    // newEvents.push(newEvent);
-    // console.log("new events: ");
-    // console.log(newEvents);
-    // setEvents(newEvents);
+
+    var newEvents = [];
+    newEvents.push(...events);
+    newEvents.push(newEvent);
+    console.log("new events: ");
+    console.log(newEvents);
+    setEvents(newEvents);
   
   }
    
@@ -107,15 +124,79 @@ export default function Default(props) {
   const handlePriChange = (e) => {
     e.preventDefault();
     setPriority(e.target.value);
-
   }
 
-  function handleEventClick(clickInfo) {
-    clickInfo.event.remove();
+  
+
+  function handleEventClick(info) {
+    var newEvents = []
+    newEvents.push(...events);
+    const index = newEvents.findIndex(obj => parseInt(obj.id) === parseInt(info.event.id));
+
+    if (index != -1) {
+      newEvents.splice(index, 1);
+    }
+    setEvents(newEvents);
   }
 
-  function handleEvents(events) {
-    setEvents(events)
+ 
+  function handleTimeChange(info){
+    console.log(info.event);
+
+    var newEvents = [];
+    newEvents.push(...events);
+    const index = newEvents.findIndex(obj => parseInt(obj.id) === parseInt(info.event.id));
+
+    if (index != -1) {
+      newEvents[index].start = info.event.startStr;
+      newEvents[index].end = info.event.endStr;
+    }
+  }
+
+  const onSubmit = async (e) => {
+    const timeslots = mapEventsToTimeslots(events);
+    console.log("timeslots", timeslots);
+    e.preventDefault();
+
+    // delete what was there before
+    try {
+      const response = await fetch(`http://localhost:8000/` +'calendars/' + params.calendar_id + '/timeslots/', {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        alert("deleted old timeslots")
+      } else {
+        throw Error;
+      }
+    } catch (error) {
+      console.error("Failed to delete timeslots: ", error);
+      alert("An error occurred. Please try again.");
+    };
+
+
+    //post the updated timeslots 
+    const requestBody = {
+      'timeslots': timeslots
+    }
+    try {
+      const response = await fetch(`http://localhost:8000/` +'calendars/' + params.calendar_id + '/timeslots/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody) 
+      });
+
+      if (response.ok) {
+        alert("added timeslots")
+      } else {
+        throw Error;
+      }
+    } catch (error) {
+      console.error("Failed to add timeslots: ", error);
+      alert("An error occurred. Please try again.");
+    };
   }
 
   return (
@@ -174,16 +255,20 @@ export default function Default(props) {
     </Box>
       {!isFetching ? 
       <InviteeCalendar 
-          events={events} 
-          initialEvents={userTimeslots} 
+          events={events}  
           onSelect={handleSelect} 
           handleEventClick={handleEventClick}
+          handleEventDrop={handleTimeChange}
           // handleEvents={handleEvents}
           /> :
         <Box sx={{ width: '100%', height: '100%', display: "flex", alignItems: "center", justifyContent: "center" }}>
           <CircularProgress />
         </Box>}
-        <Button size="lg">Done</Button>
+        <Box sx={{display: "flex", justifyContent: "right", gap: 2}}>
+          <Button size="lg" variant="outlined" sx={{borderColor: 'rgba(0, 0, 0, 0.12)'}}>Cancel</Button>
+          <Button size="lg" onClick={onSubmit}>Done</Button>
+        </Box>  
+        
     </MainTemplate>
   );
 }

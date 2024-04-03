@@ -2,7 +2,7 @@
 import MainTemplate from '@/components/main/MainTemplate';
 import { Button, FormControl, FormLabel, Input, Stack } from '@mui/joy';
 import EmailRoundedIcon from '@mui/icons-material/EmailRounded';
-import React from 'react';
+import React, { useEffect } from 'react';
 import StandardCard from '@/components/main/StandardCard';
 import TableSortAndSelection from '@/components/main/TableCard';
 import { fetchData } from '@/components/util';
@@ -16,7 +16,11 @@ export default function Contacts() {
 
   const { data, isFetching, message } = fetchData('accounts/contacts');
   // @ts-ignore
-  const contacts = data || [];
+  const [contacts, setContacts] = useState([]);
+
+  useEffect(() => {
+    setContacts(data);
+  }, [data]);
 
   
   const headCells = [
@@ -63,10 +67,13 @@ export default function Contacts() {
 
       if (response.ok) {
         alert("contact deleted");
+        setContacts(data);
         // TODO: find better way of doing this
-        window.location.reload();
-      } else {
-        throw Error;
+        // window.location.reload();
+        // useEffect(() => {
+        //   setContacts(data);
+        // }, [data]);
+
       }
     } catch (error) {
       console.error("Failed to delete contact: ", error);
@@ -91,7 +98,11 @@ export default function Contacts() {
       if (response.ok) {
         alert("contact added");
         // TODO: find better way of doing this
-        window.location.reload();
+        // window.location.reload();
+        setContacts(data);
+        // useEffect(() => {
+        //   setContacts(data);
+        // }, [data]);
       } else {
         throw Error;
       }

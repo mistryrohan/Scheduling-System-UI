@@ -8,7 +8,7 @@ import interactionPlugin from '@fullcalendar/interaction'
 import { Card } from '@mui/joy';
 
 export default function InviteeCalendar(props) {
-    const { events, initialEvents, onSelect, handleEventClick, handleEvents} = props;
+    const { events, initialEvents, onSelect, handleEventClick, handleEvents, handleEventDrop} = props;
     return (
         <Card sx={{ p: 0, height: "100%" }}>
             <FullCalendar
@@ -37,6 +37,7 @@ export default function InviteeCalendar(props) {
                 eventClick={handleEventClick}
                 eventResizableFromStart={true}
                 eventsSet={handleEvents}
+                eventChange={handleEventDrop}
             />
         </Card>
 
