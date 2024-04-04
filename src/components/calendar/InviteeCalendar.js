@@ -38,6 +38,8 @@ export default function InviteeCalendar(props) {
                 eventResizableFromStart={true}
                 eventsSet={handleEvents}
                 eventChange={handleEventDrop}
+                contentHeight={"auto"}
+                slotMinTime={"07:00:00"}
             />
         </Card>
 
