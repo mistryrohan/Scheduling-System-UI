@@ -61,16 +61,22 @@ export async function handleLogin(username, password) {
     try {
         const response = await fetch(url, requestOptions);
         const data = await response.json();
-        // if (!response.ok) throw new Error(data['detail']);
-        if (!response.ok) throw new Error(data.message || 'Login failed');
+        if (!response.ok) {
+            let errorMessage = data.message && data.message.length ? data.message.join(' ') : 'Login failed';
+            if (data.password && Array.isArray(data.password)) {
+                errorMessage = data.password.join(' ');
+            }
+            throw new Error(errorMessage);
+        }
         /*Storing the user, and access and refresh tokens to localStorage*/
+        localStorage.setItem('id', JSON.stringify(data.id));
+        console.log(JSON.stringify(data.id))
         localStorage.setItem('user', JSON.stringify(data.user));
         console.log(JSON.stringify(data.user))
         localStorage.setItem('access_token', data.access);
         console.log(data.access)
         localStorage.setItem('refresh_token', data.refresh);
         console.log(data.refresh)
-        // return { success: true, message: data['message'] };
         return { success: true, message: 'Login successful' };
     }
     catch (error) {
