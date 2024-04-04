@@ -11,7 +11,6 @@ import {
   FormControl,
   FormLabel,
   Input,
-  ListDivider,
   ListItemDecorator,
   Menu,
   MenuButton,
@@ -20,10 +19,9 @@ import {
 import React from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import TableSortAndSelection from '@/components/main/TableCard';
-import { ArrowDropDown, DeleteForever, Edit } from '@mui/icons-material';
+import { ArrowDropDown, Edit } from '@mui/icons-material';
 import StatusChip from '@/components/calendars/StatusChip';
 import { Search } from '@mui/icons-material';
-import AlertDialogModal from '@/components/calendars/DeleteModal';
 import { useRouter } from 'next/navigation';
 
 export default function Calendars() {
@@ -37,8 +35,6 @@ export default function Calendars() {
   const allCalendars = [...ownedCalendars, ...invitedCalendars];
 
   const [searchInput, setSearchInput] = React.useState('');
-  const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
-  const [deleteCalendar, setDeleteCalendar] = React.useState(-1);
   const [filterType, setFilterType] = React.useState('all');
 
   const NewCalendarButton = <Button
@@ -75,15 +71,9 @@ export default function Calendars() {
     router.push(`/calendars/${id}/details`)
   }
 
-  const handleDelete = () => {
-    // TODO: Implement deletion
-    alert(`delete calendar ${deleteCalendar}`)
-    setDeleteCalendar(-1);
-  }
-
   const handleFilterType = (u) => {
-    if(filterType == 'hosted') return u == user;
-    else if(filterType == 'invited') return u != user;
+    if (filterType == 'hosted') return u == user;
+    else if (filterType == 'invited') return u != user;
     else return true;
   }
 
@@ -94,22 +84,15 @@ export default function Calendars() {
       ...attr,
       button: (
         <Box sx={{ display: "flex", justifyContent: "end", gap: 2 }}>
-          <StatusChip owner={primary_user} user={user} hasMeeting={has_meeting} allResponded={all_responded} respondants={respondants}/>
+          <StatusChip owner={primary_user} user={user} hasMeeting={has_meeting} allResponded={all_responded} respondants={respondants} />
           <Dropdown>
             <MenuButton endDecorator={<ArrowDropDown />}>More</MenuButton>
             <Menu size="sm" placement="bottom-end">
-              <MenuItem onClick={() => {handleViewDetails(attr.id)}}>
+              <MenuItem onClick={() => { handleViewDetails(attr.id) }}>
                 <ListItemDecorator >
                   <Edit />
                 </ListItemDecorator>
                 View Details
-              </MenuItem>
-              <ListDivider />
-              <MenuItem color="danger" onClick={() => {setDeleteCalendar(attr.id); setOpenDeleteModal(true)}}>
-                <ListItemDecorator sx={{ color: "inherit" }}>
-                  <DeleteForever />
-                </ListItemDecorator>
-                Delete
               </MenuItem>
             </Menu>
           </Dropdown>
@@ -149,7 +132,6 @@ export default function Calendars() {
 
   return (
     <>
-      <AlertDialogModal open={openDeleteModal} setOpen={setOpenDeleteModal} title={"Delete Calendar"} handleDelete={handleDelete}/>
       <MainTemplate title="Calendars" message={message} titleDecorator={NewCalendarButton}>
         {!isFetching ?
           <TableSortAndSelection {...tableProps} disableSelect /> :
@@ -159,7 +141,5 @@ export default function Calendars() {
         }
       </MainTemplate>
     </>
-
-
   );
 }

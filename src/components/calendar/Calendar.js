@@ -20,7 +20,7 @@ export default function Calendar(props) {
 
     return (
         <>
-            <Card sx={{ p: 0, height: "100%" }}>
+            <Card className="calendarComponent" sx={{ p: 0, height: "100%" }}>
                 <FullCalendar
                     plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                     initialView="dayGridMonth"

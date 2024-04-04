@@ -17,6 +17,7 @@ import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { visuallyHidden } from '@mui/utils';
+import { DateTime } from 'luxon';
 
 function labelDisplayedRows({ from, to, count }) {
     return `${from}–${to} of ${count !== -1 ? count : `more than ${to}`}`;
@@ -173,9 +174,9 @@ function EnhancedTableToolbar(props) {
 
 export default function TableSortAndSelection(props) {
     const { headCells, rows, title, subtitle, handleDeleteClick, disableSelect, topDecorator } = props
-    
+
     const selected = props.selected ?? [];
-    const setSelected = props.setSelected ?? function() {};
+    const setSelected = props.setSelected ?? function () { };
 
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('calories');
@@ -242,7 +243,7 @@ export default function TableSortAndSelection(props) {
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
     return (
-        <Box sx={{display: "flex", flexDirection: "column", gap: 2}}>
+        <Box sx={{ m: '0 !important', display: "flex", flexDirection: "column", gap: 2 }}>
             {topDecorator}
             <Sheet
                 variant="outlined"
@@ -256,13 +257,13 @@ export default function TableSortAndSelection(props) {
                         '--TableCell-headBackground': 'transparent',
                         '--TableCell-selectedBackground': (theme) =>
                             theme.vars.palette.success.softBg,
-                        '& thead th:nth-child(1)': disableSelect ? undefined : {
+                        '& thead th:nth-of-type(1)': disableSelect ? undefined : {
                             width: '40px',
                         },
                         '& thead th': {
                             width: '100%',
                         },
-                        '& tr > *:nth-child(n+3)': { textAlign: 'right' },
+                        '& tr > *:nth-of-type(n+3)': { textAlign: 'right' },
                     }}
                 >
                     <EnhancedTableHead
@@ -306,10 +307,17 @@ export default function TableSortAndSelection(props) {
                                         {row.name ? <th id={labelId} scope="row">
                                             {row.name}
                                         </th> : <></>}
-                                        {Object.entries(row).map(([key, value]) =>  (
-                                            key !== 'name' && key !== 'id' &&
-                                            <td key={key}>{value}</td>
-                                        ))}
+                                        {Object.entries(row).map(([key, value]) => {
+
+                                            if (key.includes('time')) {
+                                                value = DateTime.fromISO(value).plus({ hours: 5 }).toLocaleString({ weekday: 'short', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+                                            }
+
+                                            return ( //so bad but idc
+                                                key !== 'name' && key !== 'id' && key.charAt(0) !== '_' &&
+                                                <td key={key}>{value}</td>
+                                            )
+                                        })}
                                     </tr>
                                 );
                             })}

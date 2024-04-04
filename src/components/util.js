@@ -1,4 +1,21 @@
 import { useEffect, useState } from 'react';
+
+
+export function getOptions(method, body) {
+
+    const accessToken = typeof window === 'object' ? localStorage.getItem('access_token') : null;
+    const headers = {
+        'Content-Type': 'application/json',
+        ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
+    };
+    
+    return {
+        method,
+        headers,
+        ...(body ? { body: JSON.stringify(body) } : {})
+    }
+}
+
 function trimEndpoint(endpoint) {
     let trimmedEndpoint = endpoint.replace(/^\/+/, '');
     trimmedEndpoint = trimmedEndpoint.replace(/\/+$/, '');
@@ -16,6 +33,7 @@ export function fetchData(endpoint, method = 'GET', body = null) {
     const [data, setData] = useState([]);
     const [isFetching, setIsFetching] = useState(false);
     const [message, setMessage] = useState(null);
+    const [responseCode, setResponseCode] = useState(null);
 
     const accessToken = typeof window === 'object' ? localStorage.getItem('access_token') : null;
     const headers = {
@@ -26,12 +44,13 @@ export function fetchData(endpoint, method = 'GET', body = null) {
     const options = { method, headers }
     if (body) options.body = JSON.stringify(body);
 
-    async function fetchData() {
+    async function getData() {
         setIsFetching(true);
         try {
             const response = await fetch(`http://www.localhost:8000/${trimEndpoint(endpoint)}/`, options);
+            setResponseCode(response.status);
             const data = await response.json();
-            if (!response.ok) throw new Error(data['detail']);
+            if (!response.ok) throw new Error(data['message'] ?? data['detail']);
             setData(data);
             setMessage(data["message"]);
         } catch (error) {
@@ -41,9 +60,9 @@ export function fetchData(endpoint, method = 'GET', body = null) {
         }
     }
 
-    useEffect(() => { fetchData() }, []);
+    useEffect(() => { getData() }, []);
 
-    return { data, isFetching, message };
+    return { data, isFetching, message, responseCode };
 }
 
 /** 
