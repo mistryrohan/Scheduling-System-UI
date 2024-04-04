@@ -52,6 +52,29 @@ export default function Sidebar() {
 
   const router = useRouter();
 
+  const accessToken = typeof window === 'object' ? localStorage.getItem('access_token') : null;
+  const refeshToken = typeof window === 'object' ? localStorage.getItem('refresh_token') : null;
+  const handleLogout = async () => {
+    const response = await fetch('http://www.localhost:8000/accounts/logout/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
+      },
+      body: JSON.stringify({ refeshToken })
+    });
+
+    if (response.ok) {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('id');
+      router.push('/');
+    } else {
+      console.error('Logout failed');
+    }
+  };
+
   return (
     <Sheet
       className="Sidebar"
@@ -193,7 +216,7 @@ export default function Sidebar() {
           <Typography level="title-sm">Hi, Joe!</Typography>
           <Typography level="body-xs">siriwatk@test.com</Typography>
         </Box>
-        <IconButton size="sm" variant="plain" color="neutral">
+        <IconButton size="sm" variant="plain" color="neutral" onClick={handleLogout}>
           <LogoutRoundedIcon />
         </IconButton>
       </Box>
