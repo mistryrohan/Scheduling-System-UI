@@ -13,75 +13,20 @@ import InviteeCalendar from '@/components/calendar/InviteeCalendar';
 import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import Typography from '@mui/joy/Typography';
-
-let eventId = 0;
-
-const priToColour = {
-  "2":  '#C63D2F', // highest pri
-  "1": '#FC6736', 
-  "0": '#FFBB5C' // lowest pri
-}
-
-const colourToPri = {
-  "#C63D2F": 2, // highest pri
-  "#FC6736": 1, 
-  "#FFBB5C": 0 // lowest pri
-}
-
-function createEventId() {
-  return String(eventId++);
-}
-
-function mapToCalendar(timeslots, userId) {
-
-  var userTimeslots = [];
-  timeslots.forEach(timeslot => {
-    if (timeslot['user'] === userId){ 
-      userTimeslots.push({
-        id: createEventId(),
-        start: timeslot.start_time.substring(0, timeslot.start_time.length - 1),
-        end: timeslot.end_time.substring(0, timeslot.end_time.length - 1),
-        backgroundColor: priToColour[timeslot.priority]
-      });  
-    }
-  });
-  return userTimeslots;
-}
-
-function mapEventsToTimeslots(events) {
-  var timeslots = [];
-  events.forEach(event => {
-    timeslots.push({
-      start_time: event.start.substring(0, 19), // TODO: check
-      end_time: event.end.substring(0, 19),
-      priority: colourToPri[event.backgroundColor]
-    });
-  
-  });
-  return timeslots;
-}
-
-function mapContactsToOptions(contacts){
-  var contactOptions = [];
-  contacts.forEach(contact => {
-    contactOptions.push({
-      label: contact.email,
-      id: contact.id
-    })
-  })
-  return contactOptions;
-}
-
+import { useRouter } from 'next/navigation';
+import {createEventId, mapToCalendar, mapEventsToTimeslots, mapContactsToOptions, mapPickedOptionsToUserIds } from '@/components/calendar/util';
 
 export default function Default() {
       // Create calendar.
 
+  const router = useRouter();
   const [ events, setEvents ] = useState([]);
   const [priority, setPriority] = React.useState('low');
   const [colour, setColour ] = useState('#FFBB5C');
   const [open, setOpen] = React.useState(false);
   const [options, setOptions] = React.useState([]);
   const loading = open && options.length === 0;
+  const [ pickedOptions, setPickedOptions ] = useState([]);
 
   const apiURL = 'accounts/contacts';
   const { data, isFetching, message } = fetchData(apiURL);
@@ -185,53 +130,68 @@ export default function Default() {
   }
 
   const onSubmit = async (e) => {
-    // const timeslots = mapEventsToTimeslots(events);
-    // console.log("timeslots", timeslots);
-    // e.preventDefault();
+    const userIds = mapPickedOptionsToUserIds(pickedOptions);
 
-    // // delete what was there before
-    // try {
-    //   const response = await fetch(`http://localhost:8000/` +'calendars/' + params.calendar_id + '/timeslots/', {
-    //     method: 'DELETE'
-    //   });
+    // First, create the calendar 
+    const CalendarRequestBody = {
+      'name': "new cal",
+      'description': "new cal from FE api call",
+      'duration': 30,
+    };
+ 
+    var newCalId; 
+    try {
+      const response = await fetch('http://localhost:8000/calendars/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(CalendarRequestBody)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Log the ID of the newly created calendar
+            // console.log("ID of the new calendar:", data.calendar.id);
+            newCalId = data.calendar.id;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
 
-    //   if (response.ok) {
-    //     alert("deleted old timeslots")
-    //   } else {
-    //     throw Error;
-    //   }
-    // } catch (error) {
-    //   console.error("Failed to delete timeslots: ", error);
-    //   alert("An error occurred. Please try again.");
-    // };
+    } catch (e) {
+        console.log(e);
+    }
 
+    // post to send invitations 
+    const InvitationsRequestBody = {
+      'users': userIds
+    }
+    try {
+      const response = await fetch(`http://localhost:8000/` +'calendars/' + newCalId + '/invitations/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(InvitationsRequestBody) 
+      });
 
-    // //post the updated timeslots 
-    // const requestBody = {
-    //   'timeslots': timeslots
-    // }
-    // try {
-    //   const response = await fetch(`http://localhost:8000/` +'calendars/' + params.calendar_id + '/timeslots/', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify(requestBody) 
-    //   });
+      if (response.ok) {
+        alert("added timeslots")
+      } else {
+        throw Error;
+      }
+    } catch (error) {
+      console.error("Failed to add timeslots: ", error);
+      alert("An error occurred. Please try again.")
+    }
+    router.push('/meetings');
 
-    //   if (response.ok) {
-    //     alert("added timeslots")
-    //   } else {
-    //     throw Error;
-    //   }
-    // } catch (error) {
-    //   console.error("Failed to add timeslots: ", error);
-    //   alert("An error occurred. Please try again.");
-    // };
   }
 
+
   const handleOnChange = (event, value) => {
-    console.log(value); // Log the selected value
+    setPickedOptions(value)
+
   };
 
     return (
