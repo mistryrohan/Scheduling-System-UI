@@ -18,7 +18,7 @@ export default function StandardCard(props) {
                     <Box
                         sx={{
                             display: 'flex',
-                            mb: 1,
+                            mb: 0.1,
                             gap: 1,
                             flexDirection: { xs: 'column', sm: 'row' },
                             alignItems: { xs: 'start', sm: 'center' },

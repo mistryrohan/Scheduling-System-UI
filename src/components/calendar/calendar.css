@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Inter);
+
 /* .fc-daygrid-event{
     background-color: red !important;
 } */
@@ -7,83 +7,123 @@
     background-color: red !important;
 } */
 
-* {
-    font-family: 'Inter';
-}
-
-.fc-toolbar-chunk{
-    display: flex !important;
-}
-
-.fc-button, .fc-button:disabled {
-    background-color: transparent !important;
-    color: black !important;
-    border: 1px solid lightgray !important;
-    padding: 0.5em 1em !important;
-    font-size: 1em !important;
-}
-
-.fc-prev-button, .fc-next-button {
-    border: none !important;
-}
-
-.fc-toolbar {
-    padding: 1em !important;
-    margin: 0 !important;
-}
+.calendarComponent {
 
 
-.fc-toolbar-title {
-    font-size: 1.3em !important;
-    font-weight: 500;
+    .fc-toolbar-chunk {
+        display: flex !important;
+        align-items: center !important;
+    }
 
-}
+    .fc-button,
+    .fc-button:disabled {
+        background-color: transparent !important;
+        color: black !important;
+        border: 1px solid lightgray !important;
+        padding: 0.5em 1em !important;
+        font-size: 1em !important;
+    }
 
-.fc-col-header-cell,
-th {
-    /* background-color: red !important; */
-    border: none !important;
-}
+    .fc-prev-button,
+    .fc-next-button {
+        border: none !important;
+    }
 
-table {
-    border: none !important;
-}
+    .fc .fc-timegrid-slot-minor {
+        border: none !important;
+    }
 
-table {
-    border-collapse: collapse !important;
-}
+    .fc-toolbar {
+        padding: 1em !important;
+        margin: 0 !important;
+    }
 
-table tr:first-child th {
-    border-top: 0 !important;
-}
 
-table tr:last-child td {
-    border-bottom: 0 !important;
-}
+    .fc-toolbar-title {
+        font-size: 1.3em !important;
+        font-weight: 500;
 
-table tr td:first-child,
-table tr th:first-child {
-    border-left: 0 !important;
-}
+    }
 
-table tr td:last-child,
-table tr th:last-child {
-    border-right: 0 !important;
-}
+    .fc-daygrid-day-top {
+        padding-top: 0.5em !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
 
-*:focus {
-    outline: none !important;
-    border-color: inherit !important;
-    -webkit-box-shadow: none !important;
-    box-shadow: none !important;
-}
+    .fc-daygrid-day.fc-day-today {
+        padding-top: 0.125em !important;
+        background: none !important;
+        border: 1px solid var(--fc-border-color) !important;
+        line-height: 1.125em !important;
+    }
 
-.fc-day-today {
-    background: #ff000015 !important;
-    border: none !important;
-  
-} 
+    .fc-day-today .fc-daygrid-day-number {
+        width: 1.6em !important;
+        height: 1.6em !important;
+        background-position: center !important;
+        background-color: #ff0000 !important;
+        border-radius: 50% !important;
+        color: white !important;
+        text-align: center !important;
+    }
 
-.fc-col-header-cell-cushion{
-    font-weight: normal;
+    @media only screen and (max-width: 600px) {
+        .fc-toolbar-title {
+            display: none !important;
+        }
+    }
+
+    .fc-col-header-cell,
+    th {
+        /* background-color: red !important; */
+        border: none !important;
+    }
+
+    table {
+        border: none !important;
+    }
+
+    table {
+        border-collapse: collapse !important;
+    }
+
+    table tr:first-child th {
+        border-top: 0 !important;
+    }
+
+    table tr:last-child td {
+        border-bottom: 0 !important;
+    }
+
+    table tr td:first-child,
+    table tr th:first-child {
+        border-left: 0 !important;
+    }
+
+    table tr td:last-child,
+    table tr th:last-child {
+        border-right: 0 !important;
+    }
+
+    *:focus {
+        outline: none !important;
+        border-color: inherit !important;
+        -webkit-box-shadow: none !important;
+        box-shadow: none !important;
+    }
+
+    .fc-day-today {
+        background: #ff000015 !important;
+        border: none !important;
+
+    }
+
+    .fc-col-header-cell-cushion {
+        font-weight: normal;
+    }
+
+    .MuiDrawer-backdrop {
+        backdrop-filter: none !important;
+    }
 }
