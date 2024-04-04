@@ -9,6 +9,8 @@ import Typography from '@mui/joy/Typography';
 import Stack from '@mui/joy/Stack';
 import BreadCrumb from './BreadCrumb';
 import Popup from './Popup';
+import { useEffect  } from 'react';
+import { useRouter } from 'next/navigation';
 
 
 
@@ -17,6 +19,14 @@ export default function MainTemplate({ title, ...props }) {
 
     const { breadcrumb, children, message, titleDecorator } = props
     const [open, setOpen] = React.useState(true);
+    const router = useRouter();
+
+    useEffect(() => {
+        const accessToken = typeof window === 'object' ? localStorage.getItem('access_token') : null;
+        if (!accessToken) {
+            router.push('/');
+        }
+    }, [router]);
 
     return (
         <>
