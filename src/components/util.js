@@ -69,6 +69,8 @@ export async function handleLogin(username, password) {
             throw new Error(errorMessage);
         }
         /*Storing the user, and access and refresh tokens to localStorage*/
+        localStorage.setItem('id', JSON.stringify(data.id));
+        console.log(JSON.stringify(data.id))
         localStorage.setItem('user', JSON.stringify(data.user));
         console.log(JSON.stringify(data.user))
         localStorage.setItem('access_token', data.access);
