@@ -23,7 +23,8 @@ export default function Contacts() {
   const [errorMessage, setErrorMessage] = React.useState('');
 
   useEffect(() => {
-    setContacts(data);
+    const rows = data.map(({ first_name, last_name, ...attr }) => ({ ...attr, name: `${first_name} ${last_name}` }));
+    setContacts(rows);
   }, [data]);
 
   
@@ -48,9 +49,7 @@ export default function Contacts() {
     }
   ];
 
-
-
-
+ 
   const [selected, setSelected] = React.useState([]);
 
   const handleDeleteClick = async () => {
@@ -70,15 +69,18 @@ export default function Contacts() {
       });
 
       if (response.ok) {
+        
+        // setContacts(data);
+
+        var newContacts = [...contacts]
+        const index = newContacts.findIndex(obj => parseInt(obj.id) === selected[0]);
+    
+        if (index != -1) {
+          newContacts.splice(index, 1);
+        }
+        setContacts(newContacts);
         setErrorMessage("Contact Deleted!")
         setSnackbarOpen(true);
-        setContacts(data);
-        // TODO: find better way of doing this
-        // window.location.reload();
-        // useEffect(() => {
-        //   setContacts(data);
-        // }, [data]);
-
       }
     } catch (error) {
       console.error("Failed to delete contact: ", error);
@@ -94,44 +96,29 @@ export default function Contacts() {
 
 
 
-    // const response = await fetch('http://localhost:8000/accounts/contacts/', getOptions('POST', requestBody))
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         console.log(data);
-    //         setErrorMessage("Created contact" + data)
-    //         setSnackbarOpen(true);
-    //     })
-    //     .catch(error => {
-    //         setErrorMessage("Could not create contact. Error: " + error)
-    //         setSnackbarOpen(true);
-    //         console.error('Error:', error);
-    //     });
+    const response = await fetch('http://localhost:8000/accounts/contacts/', getOptions('POST', requestBody))
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            setErrorMessage("Created contact" + data)
+            setSnackbarOpen(true);
+            var newContacts = [...contacts]
+            newContacts.push({
+              name: `${data.contact.first_name} ${data.contact.last_name}`,
+              username: data.contact.username,
+              email: data.contact.email,
+              id: data.contact.id
+            });
+            setContacts(newContacts);
 
-
-    try {
-      const response = await fetch(`http://localhost:8000/accounts/contacts/`, getOptions('POST', requestBody));
-
-      if (response.ok) {
-        alert("contact added");
-        setErrorMessage("Contact added!")
-        setSnackbarOpen(true);
-        // TODO: find better way of doing this
-        // window.location.reload();
-        setContacts(data);
-      } else {
-        throw Error;
-      }
-    } catch (error) {
-      console.error("Failed to add contact: ", error.data);
-      alert("An error occurred. Please try again.");
-    };
+        })
+        .catch(error => {
+            setErrorMessage("Could not create contact.")
+            setSnackbarOpen(true);
+            console.error('Error:', error);
+        });
   }
     
-  const rows = contacts.map(({ first_name, last_name, ...attr }) => ({ ...attr, name: `${first_name} ${last_name}` }));
-
-  const tableProps = {headCells, rows, selected, setSelected, handleDeleteClick}
-
-
   return (
     <MainTemplate title="Contacts"
       breadcrumb={[
@@ -168,7 +155,13 @@ export default function Contacts() {
         </form>
       </StandardCard>
 
-      <TableSortAndSelection title="Contacts" subtitle="View contacts here." {...tableProps} />
+      <TableSortAndSelection title="Contacts" subtitle="View contacts here." 
+          headCells={headCells} 
+          // rows={contacts.map(({ id, ...attr }) => ({ ...attr}))}
+          rows={contacts}
+          selected={selected}
+          setSelected={setSelected}
+          handleDeleteClick={handleDeleteClick} />
 
       <Box sx={{display: "flex", justifyContent: "right", gap: 2}}>
             <Snackbar
