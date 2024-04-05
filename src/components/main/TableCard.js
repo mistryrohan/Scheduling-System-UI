@@ -257,13 +257,13 @@ export default function TableSortAndSelection(props) {
                         '--TableCell-headBackground': 'transparent',
                         '--TableCell-selectedBackground': (theme) =>
                             theme.vars.palette.success.softBg,
-                        '& thead th:nth-of-type(1)': disableSelect ? undefined : {
+                        '& thead th:nth-child(1)': disableSelect ? undefined : {
                             width: '40px',
                         },
                         '& thead th': {
                             width: '100%',
                         },
-                        '& tr > *:nth-of-type(n+3)': { textAlign: 'right' },
+                        '& tr > *:nth-child(n+3)': { textAlign: 'right' },
                     }}
                 >
                     <EnhancedTableHead

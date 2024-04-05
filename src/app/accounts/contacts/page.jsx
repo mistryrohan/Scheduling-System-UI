@@ -1,11 +1,11 @@
 "use client"
 import MainTemplate from '@/components/main/MainTemplate';
-import { Button, FormControl, FormLabel, Input, Stack } from '@mui/joy';
+import { Box, Button, FormControl, FormLabel, Input, Snackbar, Stack } from '@mui/joy';
 import EmailRoundedIcon from '@mui/icons-material/EmailRounded';
-import React from 'react';
+import React, { useEffect } from 'react';
 import StandardCard from '@/components/main/StandardCard';
 import TableSortAndSelection from '@/components/main/TableCard';
-import { fetchData } from '@/components/util';
+import { fetchData, getOptions } from '@/components/util';
 import { useState } from 'react';
 
 export default function Contacts() {
@@ -16,7 +16,16 @@ export default function Contacts() {
 
   const { data, isFetching, message } = fetchData('accounts/contacts');
   // @ts-ignore
-  const contacts = data || [];
+  const [contacts, setContacts] = useState([]);
+
+  // state for popup
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState('');
+
+  useEffect(() => {
+    const rows = data.map(({ first_name, last_name, ...attr }) => ({ ...attr, name: `${first_name} ${last_name}` }));
+    setContacts(rows);
+  }, [data]);
 
   
   const headCells = [
@@ -40,9 +49,7 @@ export default function Contacts() {
     }
   ];
 
-
-
-
+ 
   const [selected, setSelected] = React.useState([]);
 
   const handleDeleteClick = async () => {
@@ -62,11 +69,18 @@ export default function Contacts() {
       });
 
       if (response.ok) {
-        alert("contact deleted");
-        // TODO: find better way of doing this
-        window.location.reload();
-      } else {
-        throw Error;
+        
+        // setContacts(data);
+
+        var newContacts = [...contacts]
+        const index = newContacts.findIndex(obj => parseInt(obj.id) === selected[0]);
+    
+        if (index != -1) {
+          newContacts.splice(index, 1);
+        }
+        setContacts(newContacts);
+        setErrorMessage("Contact Deleted!")
+        setSnackbarOpen(true);
       }
     } catch (error) {
       console.error("Failed to delete contact: ", error);
@@ -79,33 +93,32 @@ export default function Contacts() {
     const requestBody = {
       'email': email
     }
-    try {
-      const response = await fetch(`http://localhost:8000/accounts/contacts/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody) 
-      });
 
-      if (response.ok) {
-        alert("contact added");
-        // TODO: find better way of doing this
-        window.location.reload();
-      } else {
-        throw Error;
-      }
-    } catch (error) {
-      console.error("Failed to add contact: ", error);
-      alert("An error occurred. Please try again.");
-    };
+
+
+    const response = await fetch('http://localhost:8000/accounts/contacts/', getOptions('POST', requestBody))
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            setErrorMessage("Created contact" + data)
+            setSnackbarOpen(true);
+            var newContacts = [...contacts]
+            newContacts.push({
+              name: `${data.contact.first_name} ${data.contact.last_name}`,
+              username: data.contact.username,
+              email: data.contact.email,
+              id: data.contact.id
+            });
+            setContacts(newContacts);
+
+        })
+        .catch(error => {
+            setErrorMessage("Could not create contact.")
+            setSnackbarOpen(true);
+            console.error('Error:', error);
+        });
   }
     
-  const rows = contacts.map(({ first_name, last_name, ...attr }) => ({ ...attr, name: `${first_name} ${last_name}` }));
-
-  const tableProps = {headCells, rows, selected, setSelected, handleDeleteClick}
-
-
   return (
     <MainTemplate title="Contacts"
       breadcrumb={[
@@ -126,15 +139,6 @@ export default function Contacts() {
                     </>}
       >
         <form>
-          <Stack spacing={1} sx={{ mb: 1 }}>
-            <FormLabel>Username</FormLabel>
-            <FormControl
-              sx={{ display: { sm: 'flex-column', md: 'flex-row' }, gap: 2 }}
-            >
-
-              <Input size="sm" placeholder="Username" name='' value={username} onChange={(e) => {setUsername(e.target.value)}}/>
-            </FormControl>
-          </Stack>
           <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
             <FormControl sx={{ flexGrow: 1 }}>
               <FormLabel>Email</FormLabel>
@@ -151,7 +155,26 @@ export default function Contacts() {
         </form>
       </StandardCard>
 
-      <TableSortAndSelection title="Contacts" subtitle="View contacts here." {...tableProps} />
+      <TableSortAndSelection title="Contacts" subtitle="View contacts here." 
+          headCells={headCells} 
+          // rows={contacts.map(({ id, ...attr }) => ({ ...attr}))}
+          rows={contacts}
+          selected={selected}
+          setSelected={setSelected}
+          handleDeleteClick={handleDeleteClick} />
+
+      <Box sx={{display: "flex", justifyContent: "right", gap: 2}}>
+            <Snackbar
+                autoHideDuration={1500}
+                variant="solid"
+                open={snackbarOpen}
+                size={"md"}
+                onClose={(event, reason) => { setSnackbarOpen(false) }}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                {errorMessage}
+            </Snackbar>
+          </Box> 
 
     </MainTemplate>
   );
