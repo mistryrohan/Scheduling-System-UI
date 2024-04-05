@@ -19,6 +19,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { closeSidebar } from './utils';
 import AppIcon from '../AppIcon';
 import { usePathname, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react';
 
 function Toggler({
   defaultExpanded = false,
@@ -54,6 +55,38 @@ export default function Sidebar() {
 
   const accessToken = typeof window === 'object' ? localStorage.getItem('access_token') : null;
   const refeshToken = typeof window === 'object' ? localStorage.getItem('refresh_token') : null;
+
+  const [userInfo, setUserInfo] = useState({ username: '', email: '' });
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (accessToken) {
+        try {
+          const response = await fetch('http://127.0.0.1:8000/accounts/profile/', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
+            },
+          });
+          if (!response.ok) {
+            throw new Error('Failed to fetch user profile');
+          }
+          const data = await response.json();
+          setUserInfo({
+            username: data.user.username,
+            email: data.user.email,
+          });
+        } catch (error) {
+          console.error(error.message);
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [accessToken]);
+
+
   const handleLogout = async () => {
     const response = await fetch('http://www.localhost:8000/accounts/logout/', {
       method: 'POST',
@@ -213,8 +246,8 @@ export default function Sidebar() {
       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
 
         <Box sx={{ minWidth: 0, flex: 1 }}>
-          <Typography level="title-sm">Hi, Joe!</Typography>
-          <Typography level="body-xs">siriwatk@test.com</Typography>
+          <Typography level="title-sm">Hi, {userInfo.username || 'Guest'}!</Typography>
+          <Typography level="body-xs">{userInfo.email || ' '}</Typography>
         </Box>
         <IconButton size="sm" variant="plain" color="neutral" onClick={handleLogout}>
           <LogoutRoundedIcon />
