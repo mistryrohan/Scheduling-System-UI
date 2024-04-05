@@ -5,11 +5,11 @@ import Input from '@mui/joy/Input';
 import Stack from '@mui/joy/Stack';
 import MainTemplate from '@/components/main/MainTemplate';
 import EmailRoundedIcon from '@mui/icons-material/EmailRounded';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import StandardCard from '@/components/main/StandardCard';
 import { Button } from '@mui/joy';
-import { fetchData } from '@/components/util';
+import { fetchData, getOptions } from '@/components/util';
 
 export default function Profile() {
 
@@ -22,6 +22,36 @@ export default function Profile() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  const accessToken = typeof window === 'object' ? localStorage.getItem('access_token') : null;
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (accessToken) {
+        try {
+          const response = await fetch('http://127.0.0.1:8000/accounts/profile/', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
+            },
+          });
+          if (!response.ok) {
+            throw new Error('Failed to fetch user profile');
+          }
+          const data = await response.json();
+          setUsername(data.user.username);
+          setEmail(data.user.email);
+          setFirstName(data.user.first_name);
+          setLastName(data.user.last_name);
+        } catch (error) {
+          console.error(error.message);
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [accessToken]);
+
   const handleSubmit = async (e) => {
     e.preventDefault(); 
 
@@ -31,25 +61,33 @@ export default function Profile() {
       return;
     }
 
-    // Constructing payload, excluding password fields if they're not filled
-    const payload = {
-      username,
-      first_name: firstName, 
-      last_name: lastName,
-      email,
-      password1: password, 
-      password2: confirmPassword,
-    };
+
+    var payload = {}
+    if(username != ''){
+      payload['username'] = username
+    }
+
+    if(firstName != ''){
+      payload['first_name'] = firstName
+    }
+    if(lastName != ''){
+      payload['last_name'] = lastName
+    }
+
+    if(email != ''){
+      payload['email'] = email
+    }
+
+    if(password != ''){
+      payload['password1'] = password
+    }
+
+    if(confirmPassword != ''){
+      payload['password2'] = confirmPassword
+    }
 
     try {
-      const response = await fetch('http://www.localhost:8000/accounts/profile/', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          // Authorization header here if required
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch('http://www.localhost:8000/accounts/profile/', getOptions('PUT', payload));
 
       if (!response.ok) throw new Error('Failed to update profile');
 

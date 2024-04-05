@@ -55,18 +55,11 @@ export default function Contacts() {
   const handleDeleteClick = async () => {
     // wip
     console.log(selected[0]);
-    alert(`delete ${selected}`);
     const requestBody = {
       'user2': selected[0]
     }
     try {
-      const response = await fetch(`http://localhost:8000/accounts/contacts/`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody) 
-      });
+      const response = await fetch(`http://localhost:8000/accounts/contacts/`, getOptions('DELETE', requestBody));
 
       if (response.ok) {
         
@@ -84,7 +77,6 @@ export default function Contacts() {
       }
     } catch (error) {
       console.error("Failed to delete contact: ", error);
-      alert("An error occurred. Please try again.");
     };
   };
 
@@ -100,7 +92,7 @@ export default function Contacts() {
         .then(response => response.json())
         .then(data => {
             console.log(data);
-            setErrorMessage("Created contact" + data)
+            setErrorMessage("Created contact")
             setSnackbarOpen(true);
             var newContacts = [...contacts]
             newContacts.push({
@@ -117,6 +109,7 @@ export default function Contacts() {
             setSnackbarOpen(true);
             console.error('Error:', error);
         });
+        setEmail('');
   }
     
   return (

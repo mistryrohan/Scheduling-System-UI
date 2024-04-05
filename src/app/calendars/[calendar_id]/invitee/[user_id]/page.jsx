@@ -145,6 +145,20 @@ export default function Default(props) {
       };
     }
 
+    const requestBody = {
+      'response': "pending"
+    }
+    try {
+      const response = await fetch(`http://localhost:8000/` +'calendars/' + params.calendar_id + '/invitee/' + params.user_id + "/", getOptions('POST', requestBody));
+      if (!response.ok) {
+        throw Error;
+      }
+    } catch (error) {
+      setErrorMessage("Could not save your response. Please try again/")
+      setSnackbarOpen(true);
+      allSuccess = false
+    };
+
     if(!allSuccess){
       await new Promise(r => setTimeout(r, 1500));
     }

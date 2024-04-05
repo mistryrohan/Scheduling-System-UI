@@ -184,7 +184,7 @@ export default function Calendars(props) {
         }));
         const payload = {meetings: data};
         
-        fetch('http://www.localhost:8000/calendars/1/finalize/', getOptions('POST', payload))
+        fetch('http://www.localhost:8000/calendars/'+ params.calendar_id +'/finalize/', getOptions('POST', payload))
         .then(response => response.json())
         .then((_) => {
             router.push('/calendars');
