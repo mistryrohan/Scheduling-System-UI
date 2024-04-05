@@ -1,11 +1,11 @@
 "use client"
 import MainTemplate from '@/components/main/MainTemplate';
-import { Button, FormControl, FormLabel, Input, Stack } from '@mui/joy';
+import { Box, Button, FormControl, FormLabel, Input, Snackbar, Stack } from '@mui/joy';
 import EmailRoundedIcon from '@mui/icons-material/EmailRounded';
 import React, { useEffect } from 'react';
 import StandardCard from '@/components/main/StandardCard';
 import TableSortAndSelection from '@/components/main/TableCard';
-import { fetchData } from '@/components/util';
+import { fetchData, getOptions } from '@/components/util';
 import { useState } from 'react';
 
 export default function Contacts() {
@@ -17,6 +17,10 @@ export default function Contacts() {
   const { data, isFetching, message } = fetchData('accounts/contacts');
   // @ts-ignore
   const [contacts, setContacts] = useState([]);
+
+  // state for popup
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState('');
 
   useEffect(() => {
     setContacts(data);
@@ -66,7 +70,8 @@ export default function Contacts() {
       });
 
       if (response.ok) {
-        alert("contact deleted");
+        setErrorMessage("Contact Deleted!")
+        setSnackbarOpen(true);
         setContacts(data);
         // TODO: find better way of doing this
         // window.location.reload();
@@ -86,28 +91,38 @@ export default function Contacts() {
     const requestBody = {
       'email': email
     }
+
+
+
+    // const response = await fetch('http://localhost:8000/accounts/contacts/', getOptions('POST', requestBody))
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         console.log(data);
+    //         setErrorMessage("Created contact" + data)
+    //         setSnackbarOpen(true);
+    //     })
+    //     .catch(error => {
+    //         setErrorMessage("Could not create contact. Error: " + error)
+    //         setSnackbarOpen(true);
+    //         console.error('Error:', error);
+    //     });
+
+
     try {
-      const response = await fetch(`http://localhost:8000/accounts/contacts/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody) 
-      });
+      const response = await fetch(`http://localhost:8000/accounts/contacts/`, getOptions('POST', requestBody));
 
       if (response.ok) {
         alert("contact added");
+        setErrorMessage("Contact added!")
+        setSnackbarOpen(true);
         // TODO: find better way of doing this
         // window.location.reload();
         setContacts(data);
-        // useEffect(() => {
-        //   setContacts(data);
-        // }, [data]);
       } else {
         throw Error;
       }
     } catch (error) {
-      console.error("Failed to add contact: ", error);
+      console.error("Failed to add contact: ", error.data);
       alert("An error occurred. Please try again.");
     };
   }
@@ -137,15 +152,6 @@ export default function Contacts() {
                     </>}
       >
         <form>
-          <Stack spacing={1} sx={{ mb: 1 }}>
-            <FormLabel>Username</FormLabel>
-            <FormControl
-              sx={{ display: { sm: 'flex-column', md: 'flex-row' }, gap: 2 }}
-            >
-
-              <Input size="sm" placeholder="Username" name='' value={username} onChange={(e) => {setUsername(e.target.value)}}/>
-            </FormControl>
-          </Stack>
           <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
             <FormControl sx={{ flexGrow: 1 }}>
               <FormLabel>Email</FormLabel>
@@ -163,6 +169,19 @@ export default function Contacts() {
       </StandardCard>
 
       <TableSortAndSelection title="Contacts" subtitle="View contacts here." {...tableProps} />
+
+      <Box sx={{display: "flex", justifyContent: "right", gap: 2}}>
+            <Snackbar
+                autoHideDuration={1500}
+                variant="solid"
+                open={snackbarOpen}
+                size={"md"}
+                onClose={(event, reason) => { setSnackbarOpen(false) }}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                {errorMessage}
+            </Snackbar>
+          </Box> 
 
     </MainTemplate>
   );

@@ -1,25 +1,22 @@
 "use client"
 import MainTemplate from '@/components/main/MainTemplate';
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
-import Link from '@mui/joy/Link';
 import React, { useEffect, useState } from 'react';
-import { fetchData } from '@/components/util';
-import { Box, Select, Option, CircularProgress } from '@mui/joy';
-import { Button, FormControl, FormLabel, Input, Stack, } from '@mui/joy';
-import EmailRoundedIcon from '@mui/icons-material/EmailRounded';
-import StandardCard from '@/components/main/StandardCard';
-import { DateTime } from 'luxon';
+import { fetchData, getOptions } from '@/components/util';
+import { Box, CircularProgress, Snackbar } from '@mui/joy';
+import { Button} from '@mui/joy';
 import InviteeCalendar from '@/components/calendar/InviteeCalendar';
 import Radio from '@mui/joy/Radio';
 import RadioGroup from '@mui/joy/RadioGroup';
 import Typography from '@mui/joy/Typography';
 import {createEventId, mapToCalendar, mapEventsToTimeslots } from '@/components/calendar/util.js';
+import { useRouter } from 'next/navigation';
 
 // Invitee landing page. 
 // The page(s) where an arbitrary user adds their timeslots (availability).
 
 export default function Default(props) {
   
+  const router = useRouter();
   const { params } = props
   const apiURL = 'calendars/' + params.calendar_id + '/timeslots';
   
@@ -31,6 +28,10 @@ export default function Default(props) {
   const [ events, setEvents ] = useState([]);
   const [priority, setPriority] = React.useState('low');
   const [colour, setColour ] = useState('#FFBB5C');
+
+  // state for popup
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState('');
 
 
   useEffect(() => {
@@ -108,50 +109,50 @@ export default function Default(props) {
   }
 
   const onSubmit = async (e) => {
+    var allSuccess = true;
     const timeslots = mapEventsToTimeslots(events);
     console.log("timeslots", timeslots);
     e.preventDefault();
 
     // delete what was there before
     try {
-      const response = await fetch(`http://localhost:8000/` +'calendars/' + params.calendar_id + '/timeslots/', {
-        method: 'DELETE'
-      });
+      const response = await fetch(`http://localhost:8000/` +'calendars/' + params.calendar_id + '/timeslots/', getOptions('DELETE'));
 
-      if (response.ok) {
-        alert("deleted old timeslots")
-      } else {
+      if (!response.ok) {
         throw Error;
       }
     } catch (error) {
       console.error("Failed to delete timeslots: ", error);
-      alert("An error occurred. Please try again.");
+      allSuccess = false
     };
 
 
-    //post the updated timeslots 
-    const requestBody = {
-      'timeslots': timeslots
-    }
-    try {
-      const response = await fetch(`http://localhost:8000/` +'calendars/' + params.calendar_id + '/timeslots/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody) 
-      });
-
-      if (response.ok) {
-        alert("added timeslots")
-      } else {
-        throw Error;
+    if (allSuccess){
+      //post the updated timeslots 
+      const requestBody = {
+        'timeslots': timeslots
       }
-    } catch (error) {
-      console.error("Failed to add timeslots: ", error);
-      alert("An error occurred. Please try again.");
-    };
+      try {
+        const response = await fetch(`http://localhost:8000/` +'calendars/' + params.calendar_id + '/timeslots/', getOptions('POST', requestBody));
+        if (!response.ok) {
+          throw Error;
+        }
+      } catch (error) {
+        setErrorMessage("Your availability could not be saved. Please try again later.")
+        setSnackbarOpen(true);
+        allSuccess = false
+        console.error("Failed to add timeslots: ", error);
+      };
+    }
+
+    if(!allSuccess){
+      await new Promise(r => setTimeout(r, 1500));
+    }
+
+    router.push('/meetings');
+
   }
+    
 
   return (
     <MainTemplate title="My Availability"
@@ -219,8 +220,18 @@ export default function Default(props) {
           <CircularProgress />
         </Box>}
         <Box sx={{display: "flex", justifyContent: "right", gap: 2}}>
-          <Button size="lg" variant="outlined" sx={{borderColor: 'rgba(0, 0, 0, 0.12)'}}>Cancel</Button>
+          <Button size="lg" variant="outlined" sx={{borderColor: 'rgba(0, 0, 0, 0.12)'}} onClick={() => router.push('/meetings')}>Cancel</Button>
           <Button size="lg" onClick={onSubmit}>Done</Button>
+          <Snackbar
+                autoHideDuration={1500}
+                variant="solid"
+                open={snackbarOpen}
+                size={"md"}
+                onClose={(event, reason) => { setSnackbarOpen(false) }}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                {errorMessage}
+            </Snackbar>
         </Box>  
         
     </MainTemplate>
