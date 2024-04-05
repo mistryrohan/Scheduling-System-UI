@@ -71,6 +71,10 @@ export default function Calendars() {
     router.push(`/calendars/${id}/details`)
   }
 
+  const handleViewTimeslots = (id) => {
+    router.push(`/calendars/${id}/timeslots`)
+  }
+
   const handleFilterType = (u) => {
     if (filterType == 'hosted') return u == user;
     else if (filterType == 'invited') return u != user;
@@ -93,6 +97,12 @@ export default function Calendars() {
                   <Edit />
                 </ListItemDecorator>
                 View Details
+              </MenuItem>
+              <MenuItem onClick={() => {handleViewTimeslots(attr.id)}}>
+                <ListItemDecorator >
+                  <Edit />
+                </ListItemDecorator>
+                View Timeslots
               </MenuItem>
             </Menu>
           </Dropdown>
