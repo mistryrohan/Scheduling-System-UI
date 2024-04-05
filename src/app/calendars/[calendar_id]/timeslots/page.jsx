@@ -14,7 +14,7 @@ const priToColour = {
 };
 
 function mapTimeslotsToEvents(timeslots) {
-  if (!Array.isArray(timeslots)) return []; // TODO remove
+  if (!Array.isArray(timeslots)) return []; 
   return timeslots.map(timeslot => ({
     id: String(timeslot.id),
     start: timeslot.start_time.substring(0, timeslot.start_time.length - 1),
@@ -29,8 +29,10 @@ function UserItem({ user, onToggle, isChecked }) {
   return (
     <Card variant="outlined" sx={{
       mb: 2, p: 2, borderColor: 'rgba(0, 0, 0, 0.12)',
-      display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: 'auto',
+      display: 'flex', justifyContent: 'space-between', alignItems: 'left', width: 'auto'
     }}>
+
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
       <Typography variant="subtitle2" sx={{ fontSize: '1rem' }}>
         {user.username}
       </Typography>
@@ -38,6 +40,8 @@ function UserItem({ user, onToggle, isChecked }) {
         checked={isChecked}
         onChange={() => onToggle(user.id)}
       />
+    </Box>
+
     </Card>
   );
 }
@@ -78,6 +82,16 @@ export default function ViewCalendar(props) {
     const visibleTimeslots = timeslotsData.filter(timeslot => visibleUsers[timeslot.user.id]);
     return mapTimeslotsToEvents(visibleTimeslots);
   }, [timeslotsData, visibleUsers]);
+
+
+  const uniqueUsers = React.useMemo(() => {
+    const usersById = {};
+    timeslotsData.forEach(timeslot => {
+      usersById[timeslot.user.id] = timeslot.user;
+    });
+    return Object.values(usersById);
+  }, [timeslotsData]);
+
   
   return (
     <MainTemplate title="View Calendar">
@@ -90,12 +104,12 @@ export default function ViewCalendar(props) {
           <Typography variant="h6" sx={{ mb: 2 }}>
             User List
           </Typography>
-          {timeslotsData.map((timeslot, index) => (
+          {uniqueUsers.map((user, index) => (
             <UserItem
-              key={index}
-              user={timeslot.user}
+              key={user.id}
+              user={user}
               onToggle={handleToggle}
-              isChecked={!!visibleUsers[timeslot.user.id]}
+              isChecked={!!visibleUsers[user.id]}
             />
           ))}
         </Box>
