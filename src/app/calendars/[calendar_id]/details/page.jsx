@@ -126,7 +126,7 @@ export default function CalendarDetails(props) {
   
   let { data: calendarData, isFetching: isFetchingCalendar } = fetchData(`calendars/${params.calendar_id}/details`); 
   let { data: timeslotsData, isFetching: isFetchingTimeslots } = fetchData(`calendars/${params.calendar_id}/timeslots`);
-  let { data: invitationsData, isFetching: isFetchingInvitations } = fetchData(`calendars/${params.calendar_id}/invitations`);
+  let { data: invitationsData, isFetching: isFetchingInvitations } = fetchData(`calendars/${params.calendar_id}/invitations2`);
 
   const [guests, setGuests] = React.useState(invitationsData.responded_invitees_details || []);
 

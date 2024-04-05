@@ -65,9 +65,10 @@ export default function ViewCalendar(props) {
   const { params } = props;
   const calendarId = params.calendar_id;
   const [visibleUsers, setVisibleUsers] = useState({});
-  const { data: timeslotsData, isFetching: isFetchingTimeslots } = fetchData(`calendars/${calendarId}/timeslots`);
+  const { data: timeslotsData, isFetching: isFetchingTimeslots } = fetchData(`calendars/${calendarId}/timeslots2`);
   const events = React.useMemo(() => mapTimeslotsToEvents(timeslotsData), [timeslotsData]);
 
+  console.log(timeslotsData);
 
   const handleToggle = (userId) => {
     setVisibleUsers(prevState => ({
