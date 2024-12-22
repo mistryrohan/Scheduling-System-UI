@@ -16,7 +16,6 @@ import { useRouter } from 'next/navigation';
 
 export default function MainTemplate({ title, ...props }) {
 
-
     const { breadcrumb, children, message, titleDecorator } = props
     const [open, setOpen] = React.useState(true);
     const router = useRouter();

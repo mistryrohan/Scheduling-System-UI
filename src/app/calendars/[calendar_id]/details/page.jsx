@@ -55,14 +55,17 @@ function InfoBlock({ label, content, icon, timeslots }) {
 
 function GuestItem({ guest, calendarId }) {
 
+  const accessToken = typeof window === 'object' ? localStorage.getItem('access_token') : null;
+
   const sendReminder = async () => {
     try {
       const response = await fetch(`http://www.localhost:8000/calendars/${calendarId}/reminders/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
         },
-        body: JSON.stringify({ user_ids: [guest.user] }) 
+        body: JSON.stringify({ users: [guest.user.id] }) 
       });
 
       if (response.ok) {
